@@ -13,7 +13,7 @@ namespace GLXEngine
     {
         public static Game main = null;
 
-        private GLContext _glContext;
+        public GLContext _glContext;
 
         public override event RenderDelegate OnAfterRender;
 

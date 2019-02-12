@@ -13,6 +13,7 @@ namespace GLXEngine
     // Type aliasing instead of creating a custom delegate in order to gain easier compatibility with any function for the scan.
     using KeyActionDelegate = System.Action<bool>;
     using KeyAxisDelegate = System.Action<float>;
+    using KeyButtonDelegate = System.Action<Key, bool>;
 
     public class KeyInputHandler
     {
@@ -22,10 +23,13 @@ namespace GLXEngine
         // Storing each delegate for each axis event.
         private Dictionary<EventID, KeyAxisDelegate> m_axisEvents;
 
+        private Dictionary<EventID, KeyButtonDelegate> m_buttonEvents;
+
         // Mapping of action events to keys.
-        private Dictionary<int, List<EventID>> m_actionsMap;
+        private Dictionary<Key, List<EventID>> m_actionsMap;
         // Mapping of axis events to keys.
-        private Dictionary<int, Dictionary<EventID, float>> m_axisMap;
+        private Dictionary<Key, Dictionary<EventID, float>> m_axisMap;
+
         // Mapping of event names to their ID's.
         private Dictionary<String, EventID> m_eventNames;
 
@@ -33,16 +37,17 @@ namespace GLXEngine
         private Dictionary<EventID, float> m_axes;
 
         // List of currently pressed keys.
-        private List<int> m_pressedKeys = new List<EventID>();
-        private List<int> m_releasedKeys = new List<EventID>();
+        private List<Key> m_pressedKeys = new List<Key>();
+        private List<Key> m_releasedKeys = new List<Key>();
 
         // Handler constructor.
         public KeyInputHandler()
         {
             m_actionEvents = new Dictionary<EventID, KeyActionDelegate>();
             m_axisEvents = new Dictionary<EventID, KeyAxisDelegate>();
-            m_actionsMap = new Dictionary<EventID, List<EventID>>();
-            m_axisMap = new Dictionary<EventID, Dictionary<EventID, float>>();
+            m_buttonEvents = new Dictionary<EventID, KeyButtonDelegate>();
+            m_actionsMap = new Dictionary<Key, List<EventID>>();
+            m_axisMap = new Dictionary<Key, Dictionary<EventID, float>>();
             m_eventNames = new Dictionary<string, EventID>();
             m_axes = new Dictionary<EventID, float>();
         }
@@ -52,12 +57,14 @@ namespace GLXEngine
             List<EventID> events = new List<EventID>(m_actionEvents.Keys);
             foreach (EventID eventID in events)
                 m_actionEvents[eventID] = null;
+
             m_axisEvents = new Dictionary<EventID, KeyAxisDelegate>(a_source.m_axisEvents);
             events = new List<EventID>(m_axisEvents.Keys);
             foreach (EventID eventID in events)
                 m_axisEvents[eventID] = null;
-            m_actionsMap = new Dictionary<EventID, List<EventID>>(a_source.m_actionsMap);
-            m_axisMap = new Dictionary<EventID, Dictionary<EventID, float>>(a_source.m_axisMap);
+
+            m_actionsMap = new Dictionary<Key, List<EventID>>(a_source.m_actionsMap);
+            m_axisMap = new Dictionary<Key, Dictionary<EventID, float>>(a_source.m_axisMap);
             m_eventNames = new Dictionary<string, EventID>(a_source.m_eventNames);
             m_axes = new Dictionary<EventID, float>(a_source.m_axes);
         }
@@ -66,9 +73,9 @@ namespace GLXEngine
         {
             m_releasedKeys.Clear();
             m_releasedKeys.AddRange(GLContext.keyup.Keys);
-            foreach (int key in GLContext.keydown.Keys)
+            foreach (Key key in GLContext.keydown.Keys)
                 if (!m_pressedKeys.Contains(key)) m_pressedKeys.Add(key);
-            foreach (int key in GLContext.keyup.Keys)
+            foreach (Key key in GLContext.keyup.Keys)
                 if (m_pressedKeys.Contains(key)) m_pressedKeys.Remove(key);
         }
 
@@ -83,29 +90,43 @@ namespace GLXEngine
                 m_axes[axisID] = 0f;
             }
 
-            foreach (int keyType in m_pressedKeys)
+            foreach (Key keyType in m_pressedKeys)
             {
                 if (m_actionsMap.ContainsKey(keyType))
                     InvokeInputActions(keyType);
 
                 if (m_axisMap.ContainsKey(keyType))
                     UpdateAxesForKey(keyType);
+
+                foreach(KeyValuePair<EventID, KeyButtonDelegate> keyButtonEvent in m_buttonEvents)
+                    keyButtonEvent.Value(keyType, true);
+
             }
 
-            foreach (int keyType in m_releasedKeys)
+            foreach (Key keyType in m_releasedKeys)
             {
                 if (m_actionsMap.ContainsKey(keyType))
                     InvokeInputActions(keyType);
+
+                foreach(KeyValuePair<EventID, KeyButtonDelegate> keyButtonEvent in m_buttonEvents)
+                    keyButtonEvent.Value(keyType, false);
             }
 
             foreach (KeyValuePair<EventID, float> axis in m_axes)
             {
                 m_axisEvents[axis.Key]?.Invoke(axis.Value);
             }
+
+            Console.Clear();
+            for (int i = 0; i < m_pressedKeys.Count; i++)
+            {
+                Console.WriteLine(m_pressedKeys[i]);
+            }
+
         }
 
         // Invoke all the function calls for given key.
-        private void InvokeInputActions(int a_key)
+        private void InvokeInputActions(Key a_key)
         {
             if (m_actionsMap.ContainsKey(a_key))
             {
@@ -118,7 +139,7 @@ namespace GLXEngine
         }
 
         // Update all axes bound to the given key.
-        private void UpdateAxesForKey(int a_key)
+        private void UpdateAxesForKey(Key a_key)
         {
             if (m_axisMap.ContainsKey(a_key))
             {
@@ -137,7 +158,7 @@ namespace GLXEngine
         }
 
         // Public function for mapping a premade event to an input for an input action.
-        public void MapEventToKeyAction(String a_name, int a_key)
+        public void MapEventToKeyAction(String a_name, Key a_key)
         {
             if (m_eventNames.ContainsKey(a_name))
             {
@@ -157,7 +178,7 @@ namespace GLXEngine
         }
 
         // Public function for mapping a premade event to an input for an input axis.
-        public void MapEventToKeyAxis(String a_name, int a_key, float a_value)
+        public void MapEventToKeyAxis(String a_name, Key a_key, float a_value)
         {
             if (m_eventNames.ContainsKey(a_name))
             {
@@ -195,6 +216,25 @@ namespace GLXEngine
                         m_actionEvents[m_eventNames[a_name]] += a_function;
                 else
                     throw new Exception("Trying to bind function to an event that wasn't mapped to an action.");
+            }
+            else
+            {
+                throw new Exception("Trying to bind function to non existing event.");
+            }
+        }
+
+        // Public function for binding a function to an event that was mapped to an action.
+        public void BindFunctionToButtonEvent(String a_name, KeyButtonDelegate a_function)
+        {
+            if (m_eventNames.ContainsKey(a_name))
+            {
+                if (m_buttonEvents.ContainsKey(m_eventNames[a_name]))
+                    if (m_buttonEvents[m_eventNames[a_name]] == null)
+                        m_buttonEvents[m_eventNames[a_name]] = a_function;
+                    else
+                        m_buttonEvents[m_eventNames[a_name]] += a_function;
+                else
+                    throw new Exception("Trying to bind function to an event that wasn't mapped to an button event.");
             }
             else
             {

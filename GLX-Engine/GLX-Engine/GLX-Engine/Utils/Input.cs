@@ -14,7 +14,7 @@ namespace GLXEngine
 		/// <param name='key'>
 		/// Key number, use Key.KEYNAME or integer value.
 		/// </param>
-		public static bool GetKey(int key) {
+		public static bool GetKey(Key key) {
 			return GLContext.GetKey(key);
 		}
 		
@@ -24,7 +24,7 @@ namespace GLXEngine
 		/// <param name='key'>
 		/// Key number, use Key.KEYNAME or integer value.
 		/// </param>
-		public static bool GetKeyDown(int key) {
+		public static bool GetKeyDown(Key key) {
 			return GLContext.GetKeyDown(key);
 		}
 		
@@ -34,7 +34,7 @@ namespace GLXEngine
 		/// <param name='key'>
 		/// Key number, use Key.KEYNAME or integer value.
 		/// </param>
-		public static bool GetKeyUp(int key) {
+		public static bool GetKeyUp(Key key) {
 			return GLContext.GetKeyUp(key);
 		}
 		
