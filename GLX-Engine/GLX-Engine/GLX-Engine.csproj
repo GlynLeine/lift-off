@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B5126D4C-7FE0-4552-BC8C-E68D529C22B2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GLX-Engine</RootNamespace>
+    <AssemblyName>GLX-Engine</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>False</ConsolePause>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>False</ConsolePause>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="GLX-Engine\Canvas.cs" />
+    <Compile Include="GLX-Engine\Components.cs" />
+    <Compile Include="GLX-Engine\ECS\ECS.cs" />
+    <Compile Include="GLX-Engine\ECS\ComponentHandle.cs" />
+    <Compile Include="GLX-Engine\ECS\EntityManager.cs" />
+    <Compile Include="GLX-Engine\Game.cs" />
+    <Compile Include="GLX-Engine\GameObject.cs" />
+    <Compile Include="GLX-Engine\Physics\Physic.cs" />
+    <Compile Include="GLX-Engine\Scene.cs" />
+    <Compile Include="GLX-Engine\Utils\KeyInputHandler.cs" />
+    <Compile Include="GLX-Engine\Sound.cs" />
+    <Compile Include="GLX-Engine\SoundChannel.cs" />
+    <Compile Include="GLX-Engine\Sprite.cs" />
+    <Compile Include="GLX-Engine\Core\BlendMode.cs" />
+    <Compile Include="GLX-Engine\Core\BoxCollider.cs" />
+    <Compile Include="GLX-Engine\Core\Collider.cs" />
+    <Compile Include="GLX-Engine\Core\GLContext.cs" />
+    <Compile Include="GLX-Engine\Core\Rectangle.cs" />
+    <Compile Include="GLX-Engine\Core\Texture2D.cs" />
+    <Compile Include="GLX-Engine\Core\Transformable.cs" />
+    <Compile Include="GLX-Engine\Core\Vector2.cs" />
+    <Compile Include="GLX-Engine\FMOD\FMOD.cs" />
+    <Compile Include="GLX-Engine\Managers\CollisionManager.cs" />
+    <Compile Include="GLX-Engine\Managers\UpdateManager.cs" />
+    <Compile Include="GLX-Engine\OpenGL\GL.cs" />
+    <Compile Include="GLX-Engine\Pivot.cs" />
+    <Compile Include="GLX-Engine\AnimationSprite.cs" />
+    <Compile Include="GLX-Engine\Mathf.cs" />
+    <Compile Include="GLX-Engine\Utils\Input.cs" />
+    <Compile Include="GLX-Engine\Utils\Key.cs" />
+    <Compile Include="GLX-Engine\Utils\MouseHandler.cs" />
+    <Compile Include="GLX-Engine\Utils\Time.cs" />
+    <Compile Include="GLX-Engine\Utils\Utils.cs" />
+    <Compile Include="GLX-Engine\AddOns\Camera.cs" />
+    <Compile Include="GLX-Engine\AddOns\HierarchyManager.cs" />
+    <Compile Include="GLX-Engine\AddOns\Settings.cs" />
+    <Compile Include="GLX-Engine\AddOns\TiledMapParser.cs" />
+    <Compile Include="GLX-Engine\AddOns\Window.cs" />
+    <Compile Include="GLX-Engine\AddOns\EasyDraw.cs" />
+  </ItemGroup>
+  <ItemGroup />
+</Project>
