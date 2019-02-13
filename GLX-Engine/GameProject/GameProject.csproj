@@ -124,6 +124,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy /s /v /h /k /y "$(ProjectDir)Resources" "$(TargetDir)"</PreBuildEvent>
+    <PreBuildEvent>xcopy /s /v /h /k /y /e /i "$(ProjectDir)Resources" "$(TargetDir)"</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /s /v /h /k /y /i "$(ProjectDir)Source" "$(ProjectDir)bin\Renderdoc\"
+xcopy /s /v /h /k /y /i "$(TargetDir)..\$(ConfigurationName)" "$(ProjectDir)bin\Renderdoc\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

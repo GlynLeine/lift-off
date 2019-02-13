@@ -28,6 +28,7 @@ namespace GLXEngine.Core
         public static int mouseY = 0;
 
         private Game _owner;
+        GL.GLFWWindow m_window;
 
         private int _targetFrameRate = 60;
         private long _lastFrameTime = 0;
@@ -67,7 +68,7 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------
         //														setupWindow()
         //------------------------------------------------------------------------------------------------------------------------
-        public void CreateWindow(int width, int height, bool fullScreen, bool vSync, int realWidth, int realHeight)
+        public void CreateWindow(int width, int height, string name, bool fullScreen, bool vSync, int realWidth, int realHeight)
         {
             // This stores the "logical" width, used by all the game logic:
             WindowSize.instance.width = width;
@@ -78,19 +79,19 @@ namespace GLXEngine.Core
 
             GL.glfwInit();
 
-            GL.glfwOpenWindowHint(GL.GLFW_FSAA_SAMPLES, 8);
-            GL.glfwOpenWindow(realWidth, realHeight, 8, 8, 8, 8, 24, 0, (fullScreen ? GL.GLFW_FULLSCREEN : GL.GLFW_WINDOWED));
+            GL.glfwWindowHint(GL.GLFW_FSAA_SAMPLES, 8);
+            //int glfwOpenWindow( int width, int height, int redbits, int greenbits, int bluebits, int alphabits, int depthbits, int stencilbits, int mode )
+            //GL.glfwOpenWindow(realWidth, realHeight, 8, 8, 8, 8, 24, 0, (fullScreen ? GL.GLFW_FULLSCREEN : GL.GLFW_WINDOWED));
+            m_window = GL.glfwCreateWindow(realWidth, realHeight, name);
             GL.glfwSetWindowTitle("Game");
             GL.glfwSwapInterval(vSync);
 
-            //GL.glfwSetErrorCallback(
-            //    (GL.GlfwError error, string message) =>
-            //    {
-            //        Console.WriteLine("OpenGL Error: " + error + " - " + message);
-            //    });
+            GL.glfwSetErrorCallback((GL.GlfwError error, string message) =>
+                {
+                    Console.WriteLine("OpenGL Error: " + error + " - " + message);
+                });
 
-            GL.glfwSetKeyCallback(
-                (int _key, int _mode) =>
+            GL.glfwSetKeyCallback((int _key, int _mode) =>
                 {
                     Key key = (Key)_key;
                     bool press = (_mode == 1);
@@ -108,8 +109,7 @@ namespace GLXEngine.Core
                     keys[_key] = press;
                 });
 
-            GL.glfwSetMouseButtonCallback(
-                (int _button, int _mode) =>
+            GL.glfwSetMouseButtonCallback((int _button, int _mode) =>
                 {
                     bool press = (_mode == 1);
                     if (press) mousehits[_button] = true;
@@ -226,7 +226,7 @@ namespace GLXEngine.Core
                 }
 
 
-            } while (GL.glfwGetWindowParam(GL.GLFW_ACTIVE) == 1);
+            } while (GL.glfwGetWindowParam(m_window, GL.GLFW_ACTIVE) == 1);
         }
 
 
@@ -242,7 +242,7 @@ namespace GLXEngine.Core
 
             _owner.Render(this);
 
-            GL.glfwSwapBuffers();
+            GL.glfwSwapBuffers(m_window);
             if (GetKey(Key.ESCAPE)) this.Close();
         }
 
@@ -367,7 +367,7 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------
         public static void UpdateMouseInput()
         {
-            GL.glfwGetMousePos(out mouseX, out mouseY);
+            GL.glfwGetCursorPos(out mouseX, out mouseY);
             mouseX = (int)(mouseX / _realToLogicWidthRatio);
             mouseY = (int)(mouseY / _realToLogicHeightRatio);
         }
