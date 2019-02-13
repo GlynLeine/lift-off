@@ -18,8 +18,8 @@ namespace GLXEngine.Core
         public const int MAXBUTTONS = 255;
 
         public static bool[] keys = new bool[MAXKEYS + 1];
-        public static Dictionary<int, bool> keydown = new Dictionary<int, bool>();
-        public static Dictionary<int, bool> keyup = new Dictionary<int, bool>();
+        public static Dictionary<Key, bool> keydown = new Dictionary<Key, bool>();
+        public static Dictionary<Key, bool> keyup = new Dictionary<Key, bool>();
         private static bool[] buttons = new bool[MAXBUTTONS + 1];
         private static bool[] mousehits = new bool[MAXBUTTONS + 1];
         private static bool[] mouseup = new bool[MAXBUTTONS + 1]; //mouseup kindly donated by LeonB
@@ -28,6 +28,7 @@ namespace GLXEngine.Core
         public static int mouseY = 0;
 
         private Game _owner;
+        GL.GLFWWindow m_window;
 
         private int _targetFrameRate = 60;
         private long _lastFrameTime = 0;
@@ -67,7 +68,7 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------
         //														setupWindow()
         //------------------------------------------------------------------------------------------------------------------------
-        public void CreateWindow(int width, int height, bool fullScreen, bool vSync, int realWidth, int realHeight)
+        public void CreateWindow(int width, int height, string name, bool fullScreen, bool vSync, int realWidth, int realHeight)
         {
             // This stores the "logical" width, used by all the game logic:
             WindowSize.instance.width = width;
@@ -78,37 +79,37 @@ namespace GLXEngine.Core
 
             GL.glfwInit();
 
-            GL.glfwOpenWindowHint(GL.GLFW_FSAA_SAMPLES, 8);
-            GL.glfwOpenWindow(realWidth, realHeight, 8, 8, 8, 8, 24, 0, (fullScreen ? GL.GLFW_FULLSCREEN : GL.GLFW_WINDOWED));
+            GL.glfwWindowHint(GL.GLFW_FSAA_SAMPLES, 8);
+            //int glfwOpenWindow( int width, int height, int redbits, int greenbits, int bluebits, int alphabits, int depthbits, int stencilbits, int mode )
+            //GL.glfwOpenWindow(realWidth, realHeight, 8, 8, 8, 8, 24, 0, (fullScreen ? GL.GLFW_FULLSCREEN : GL.GLFW_WINDOWED));
+            m_window = GL.glfwCreateWindow(realWidth, realHeight, name);
             GL.glfwSetWindowTitle("Game");
             GL.glfwSwapInterval(vSync);
 
-            //GL.glfwSetErrorCallback(
-            //    (GL.GlfwError error, string message) =>
-            //    {
-            //        Console.WriteLine("OpenGL Error: " + error + " - " + message);
-            //    });
-
-            GL.glfwSetKeyCallback(
-                (int _key, int _mode) =>
+            GL.glfwSetErrorCallback((GL.GlfwError error, string message) =>
                 {
+                    Console.WriteLine("OpenGL Error: " + error + " - " + message);
+                });
+
+            GL.glfwSetKeyCallback((int _key, int _mode) =>
+                {
+                    Key key = (Key)_key;
                     bool press = (_mode == 1);
                     if (press)
-                        if (keydown.ContainsKey(_key))
-                            keydown[_key] = true;
+                        if (keydown.ContainsKey(key))
+                            keydown[key] = true;
                         else
-                            keydown.Add(_key, true);
+                            keydown.Add(key, true);
                     else
-                        if (keyup.ContainsKey(_key))
-                        keyup[_key] = true;
+                        if (keyup.ContainsKey(key))
+                        keyup[key] = true;
                     else
-                        keyup.Add(_key, true);
+                        keyup.Add(key, true);
 
                     keys[_key] = press;
                 });
 
-            GL.glfwSetMouseButtonCallback(
-                (int _button, int _mode) =>
+            GL.glfwSetMouseButtonCallback((int _button, int _mode) =>
                 {
                     bool press = (_mode == 1);
                     if (press) mousehits[_button] = true;
@@ -217,7 +218,7 @@ namespace GLXEngine.Core
                     ResetHitCounters();
                     Display();
 
-                    if(GL.GetError() != 0)
+                    if (GL.GetError() != 0)
                         Console.WriteLine("OpenGL error: " + GL.GetError());
 
                     Time.newFrame();
@@ -225,7 +226,7 @@ namespace GLXEngine.Core
                 }
 
 
-            } while (GL.glfwGetWindowParam(GL.GLFW_ACTIVE) == 1);
+            } while (GL.glfwGetWindowParam(m_window, GL.GLFW_ACTIVE) == 1);
         }
 
 
@@ -241,7 +242,7 @@ namespace GLXEngine.Core
 
             _owner.Render(this);
 
-            GL.glfwSwapBuffers();
+            GL.glfwSwapBuffers(m_window);
             if (GetKey(Key.ESCAPE)) this.Close();
         }
 
@@ -305,15 +306,15 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------
         //														GetKey()
         //------------------------------------------------------------------------------------------------------------------------
-        public static bool GetKey(int key)
+        public static bool GetKey(Key key)
         {
-            return keys[key];
+            return keys[(int)key];
         }
 
         //------------------------------------------------------------------------------------------------------------------------
         //														GetKeyDown()
         //------------------------------------------------------------------------------------------------------------------------
-        public static bool GetKeyDown(int key)
+        public static bool GetKeyDown(Key key)
         {
             return (!keydown.ContainsKey(key) ? false : keydown[key]);
         }
@@ -321,7 +322,7 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------
         //														GetKeyUp()
         //------------------------------------------------------------------------------------------------------------------------
-        public static bool GetKeyUp(int key)
+        public static bool GetKeyUp(Key key)
         {
             return keyup[key];
         }
@@ -366,7 +367,7 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------
         public static void UpdateMouseInput()
         {
-            GL.glfwGetMousePos(out mouseX, out mouseY);
+            GL.glfwGetCursorPos(out mouseX, out mouseY);
             mouseX = (int)(mouseX / _realToLogicWidthRatio);
             mouseY = (int)(mouseY / _realToLogicHeightRatio);
         }
