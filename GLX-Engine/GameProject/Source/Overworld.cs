@@ -16,7 +16,7 @@ namespace GameProject
         SoundChannel backgroundMusicChannel;
 
         readonly uint enemyCount = (uint)((Game.main.width * Game.main.height)/48000f);
-        readonly uint starCount = (uint)((Game.main.width * Game.main.height)/480f);
+        readonly uint starCount = 0;//(uint)((Game.main.width * Game.main.height)/480f);
 
         public int score = 0;
 

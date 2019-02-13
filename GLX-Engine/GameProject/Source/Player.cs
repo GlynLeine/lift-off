@@ -5,8 +5,10 @@ namespace GameProject
 {
     public class Player : GameObject
     {
-        const float m_linearAcceleration = 6f;
+        const float m_speed = 600f;
         const float m_angularAcceleration = 5f;
+
+        Vector2 m_direction = new Vector2(0f);
 
         float m_shotTimeBuffer = 0;
         float m_reloadTime = 1f/10f;
@@ -43,19 +45,30 @@ namespace GameProject
 
         public void MoveForward(float a_value)
         {
-            Vector2 forward = new Vector2(rotation);
-            m_velocity += forward * (a_value * m_linearAcceleration);
+            if(m_velocity.sqrMagnitude > 0) m_velocity.Normalize();
+            m_velocity.y -= a_value;
+            if(m_velocity.sqrMagnitude > 0) m_velocity.magnitude = m_speed;
         }
 
         public void MoveRight(float a_value)
         {
-            Vector2 right = new Vector2(rotation + 90f);
-            m_velocity += right * (a_value * m_linearAcceleration);
+            if(m_velocity.sqrMagnitude > 0) m_velocity.Normalize();
+            m_velocity.x += a_value;
+            if(m_velocity.sqrMagnitude > 0) m_velocity.magnitude = m_speed;
         }
 
-        public void RotateRight(float a_value)
+        public void FaceForward(float a_value)
         {
-            rotation += m_angularAcceleration * a_value;
+            m_direction.y -= a_value;
+            m_direction.Normalize();
+            rotation = m_direction.angle;
+        }
+
+        public void FaceRight(float a_value)
+        {
+            m_direction.x += a_value;
+            m_direction.Normalize();
+            rotation = m_direction.angle;
         }
 
         public void Shoot(bool a_pressed)
@@ -64,10 +77,12 @@ namespace GameProject
             {
                 m_shotTimeBuffer -= m_reloadTime;
                 m_cooldownTimeBuffer -= m_cooldownTime*0.1f;
+
                 Bullet bullet = new Bullet(m_scene);
                 ((Overworld)m_scene).bullets.Add(bullet);
                 bullet.position = position;
-                bullet.m_velocity = new Vector2(rotation) * (m_velocity.magnitude + 400f);
+                bullet.m_velocity = new Vector2(rotation).SetMagnitude(1000);
+
                 m_scene.AddChild(bullet);
                 m_shotSound.Play();
             }
@@ -78,7 +93,7 @@ namespace GameProject
             if (other is Enemy)
             {
                 other.Destroy();
-                m_hp.current -= 10f;
+                //m_hp.current -= 10f;
             }
         }
 
@@ -96,8 +111,10 @@ namespace GameProject
                     ((Program)game).Restart();
             }
 
+            //if(m_velocity.sqrMagnitude > 0)
+                //rotation++;// = m_velocity.angle;
             position += m_velocity * a_dt;
-            m_velocity *= Mathf.Pow(0.99f, a_dt / (1f/60f));
+            m_velocity *= 0;
 
             if(m_cooldownTimeBuffer <= 0 && m_cooldown == false)
             {
@@ -111,13 +128,15 @@ namespace GameProject
                 m_cooldownTimeBuffer = m_cooldownTime;
             }
 
+            if(m_cooldown)
+                m_cooldownTimeBuffer += a_dt;
+
             if(m_shotTimeBuffer >= m_reloadTime)
                 m_shotTimeBuffer = m_reloadTime;
 
             if(!m_cooldown)
                 m_shotTimeBuffer += a_dt;
-            
-            m_cooldownTimeBuffer += a_dt;
+
         }
 
         protected override void RenderSelf(GLContext glContext)

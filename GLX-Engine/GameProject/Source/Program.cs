@@ -5,20 +5,22 @@ namespace GameProject
 {
     public class Hp
     {
-		public float max = 100f;
-		public float current = 100f;
-		public float regen = 0.1f;
-	}
+        public float max = 100f;
+        public float current = 100f;
+        public float regen = 0.1f;
+    }
 
     public class Program : Game
     {
         Overworld overworld;
-        public Program() : base(1280, 720, false)        // Create a window that's 800x600 and NOT fullscreen
+        public Program() : base(1280, 720)        // Create a window that's 800x600 and NOT fullscreen
         {
             m_keyInputHandler.CreateEvent("MoveForward");
             m_keyInputHandler.CreateEvent("MoveRight");
-            m_keyInputHandler.CreateEvent("RotateRight");
+            m_keyInputHandler.CreateEvent("FaceRight");
+            m_keyInputHandler.CreateEvent("FaceForward");
             m_keyInputHandler.CreateEvent("Shoot");
+            m_keyInputHandler.CreateEvent("Dodge");
             m_keyInputHandler.CreateEvent("PrintDiagnostics");
 
             m_keyInputHandler.MapEventToKeyAction("PrintDiagnostics", Key.TILDE);
@@ -31,8 +33,11 @@ namespace GameProject
             m_keyInputHandler.MapEventToKeyAxis("MoveRight", Key.D, 1f);
             m_keyInputHandler.MapEventToKeyAxis("MoveRight", Key.A, -1f);
 
-            m_keyInputHandler.MapEventToKeyAxis("RotateRight", Key.RIGHT, 1f);
-            m_keyInputHandler.MapEventToKeyAxis("RotateRight", Key.LEFT, -1f);
+            m_keyInputHandler.MapEventToKeyAxis("FaceRight", Key.RIGHT, 1f);
+            m_keyInputHandler.MapEventToKeyAxis("FaceRight", Key.LEFT, -1f);
+
+            m_keyInputHandler.MapEventToKeyAxis("FaceForward", Key.UP, 1f);
+            m_keyInputHandler.MapEventToKeyAxis("FaceForward", Key.DOWN, -1f);
 
             m_keyInputHandler.ScanObject(this);
 
@@ -49,10 +54,10 @@ namespace GameProject
 
         public void PrintDiagnostics(bool a_pressed)
         {
-            if(!a_pressed)
+            if (!a_pressed)
                 Console.WriteLine(GetDiagnostics());
 
-            Console.WriteLine(1f/(Time.deltaTime/1000f));
+            Console.WriteLine(1f / (Time.deltaTime / 1000f));
         }
 
         void Update(float a_dt)
