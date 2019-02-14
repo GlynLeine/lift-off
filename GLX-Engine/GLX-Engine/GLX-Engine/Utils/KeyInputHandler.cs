@@ -50,7 +50,7 @@ namespace GLXEngine
         private List<Key> m_pressedKeys = new List<Key>();
         private List<Key> m_releasedKeys = new List<Key>();
 
-        private Dictionary<int, GameController> m_controllers = new Dictionary<EventID, GameController>();
+        //private Dictionary<int, GameController> m_controllers = new Dictionary<EventID, GameController>();
 
         // Handler constructor.
         public KeyInputHandler()
