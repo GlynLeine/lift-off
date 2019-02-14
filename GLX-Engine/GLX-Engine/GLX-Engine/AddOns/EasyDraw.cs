@@ -22,7 +22,7 @@ namespace GLXEngine
 		public CenterMode VerticalShapeAlign=CenterMode.Center;
 
         public bool autoClear = false;
-        public Color clearColor = Color.Black;
+        public Color clearColor = Color.FromArgb(0, 0, 0, 0);
 
 		public Font font		{ get; protected set;}
 		public Pen pen			{ get; protected set;}

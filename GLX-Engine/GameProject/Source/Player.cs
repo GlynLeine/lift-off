@@ -10,32 +10,26 @@ namespace GameProject
 
         Vector2 m_direction = new Vector2(0f);
 
-        float m_shotTimeBuffer = 0;
-        float m_reloadTime = 1f/10f;
-
-        float m_cooldownTimeBuffer = 2f;
-        float m_cooldownTime = 2f;
-        bool m_cooldown = false;
-
-        Sprite m_sprite = new Sprite("Textures/shooter.png");
+        Sprite m_sprite = new Sprite("Textures/player.png");
 
         public Hp m_hp = new Hp();
         EasyDraw m_canvas;
 
-        Sound m_shotSound;
         Sound m_deathSound;
         SoundChannel m_deathSoundChannel;
-        Sound m_rechargeSound;
+
+        Gun m_gun;
 
         public Player(Scene a_scene, EasyDraw a_canvas) : base(a_scene)
         {
             m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
             AddChild(m_sprite);
+            m_gun = new Gun(a_scene);
+            AddChild(m_gun);
+
             m_canvas = a_canvas;
 
-            m_shotSound = new Sound("Audio/shot.wav");
             m_deathSound = new Sound("Audio/death.wav");
-            m_rechargeSound = new Sound("Audio/recharge.wav");
         }
 
         protected override Collider createCollider()
@@ -71,28 +65,11 @@ namespace GameProject
             rotation = m_direction.angle;
         }
 
-        public void Shoot(bool a_pressed)
-        {
-            while(m_shotTimeBuffer >= m_reloadTime)
-            {
-                m_shotTimeBuffer -= m_reloadTime;
-                m_cooldownTimeBuffer -= m_cooldownTime*0.1f;
-
-                Bullet bullet = new Bullet(m_scene);
-                ((Overworld)m_scene).bullets.Add(bullet);
-                bullet.position = position;
-                bullet.m_velocity = new Vector2(rotation).SetMagnitude(1000);
-
-                m_scene.AddChild(bullet);
-                m_shotSound.Play();
-            }
-        }
-
         public void OnCollision(GameObject other)
         {
             if (other is Enemy)
             {
-                other.Destroy();
+                //other.Destroy();
                 //m_hp.current -= 10f;
             }
         }
@@ -116,27 +93,6 @@ namespace GameProject
             position += m_velocity * a_dt;
             m_velocity *= 0;
 
-            if(m_cooldownTimeBuffer <= 0 && m_cooldown == false)
-            {
-                m_rechargeSound.Play();
-                m_cooldown = true;
-            }
-
-            if(m_cooldownTimeBuffer >= m_cooldownTime)
-            {
-                m_cooldown = false;
-                m_cooldownTimeBuffer = m_cooldownTime;
-            }
-
-            if(m_cooldown)
-                m_cooldownTimeBuffer += a_dt;
-
-            if(m_shotTimeBuffer >= m_reloadTime)
-                m_shotTimeBuffer = m_reloadTime;
-
-            if(!m_cooldown)
-                m_shotTimeBuffer += a_dt;
-
         }
 
         protected override void RenderSelf(GLContext glContext)
@@ -150,7 +106,7 @@ namespace GameProject
                 m_canvas.StrokeWeight(5);
                 m_canvas.Line(screenPosition.x - m_hp.current/2, screenPosition.y + m_sprite.height/2, screenPosition.x + m_hp.current/2, screenPosition.y + m_sprite.height/2);
 
-                percentage = Mathf.Clamp((m_cooldownTimeBuffer/m_cooldownTime), 0f, 1f)*m_hp.max;
+                percentage = m_gun.CoolDown*m_hp.max;
                 m_canvas.Stroke(System.Drawing.Color.Aqua);
                 m_canvas.Line(screenPosition.x - percentage/2, screenPosition.y + m_sprite.height/2 + 5, screenPosition.x + percentage/2, screenPosition.y + m_sprite.height/2 + 5);
             }

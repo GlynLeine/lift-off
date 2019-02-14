@@ -87,13 +87,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Source\Boid.cs" />
     <Compile Include="Source\Bullet.cs" />
     <Compile Include="Source\Enemy.cs" />
+    <Compile Include="Source\Gun.cs" />
     <Compile Include="Source\Overworld.cs" />
     <Compile Include="Source\Player.cs" />
     <Compile Include="Source\Program.cs" />
     <Compile Include="Source\ScorePage.cs" />
-    <Compile Include="Source\Star.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

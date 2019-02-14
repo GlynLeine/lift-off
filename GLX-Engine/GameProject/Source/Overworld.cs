@@ -8,7 +8,6 @@ namespace GameProject
     class Overworld : Scene
     {
         public Player player;
-        List<Star> starfield;
         public List<GameObject> enemies;
         public List<GameObject> bullets;
         EasyDraw backGround;
@@ -16,7 +15,6 @@ namespace GameProject
         SoundChannel backgroundMusicChannel;
 
         readonly uint enemyCount = (uint)((Game.main.width * Game.main.height)/48000f);
-        readonly uint starCount = 0;//(uint)((Game.main.width * Game.main.height)/480f);
 
         public int score = 0;
 
@@ -39,13 +37,6 @@ namespace GameProject
             player = new Player(this, backGround);
             AddChild(player);
             bullets = new List<GameObject>();
-
-            starfield = new List<Star>();
-            for(int i = 0; i < starCount; i++)
-            {
-                Star star = new Star(this, backGround, player);
-                starfield.Add(star);
-            }
 
             enemies = new List<GameObject>();
             for(int i = 0; i < enemyCount; i++)
