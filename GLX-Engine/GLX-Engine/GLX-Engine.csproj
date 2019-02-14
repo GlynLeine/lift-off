@@ -58,7 +58,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -70,11 +69,9 @@
     <Compile Include="GLX-Engine\ECS\EntityManager.cs" />
     <Compile Include="GLX-Engine\Game.cs" />
     <Compile Include="GLX-Engine\GameObject.cs" />
-    <Compile Include="GLX-Engine\Input\GameController.cs" />
-    <Compile Include="GLX-Engine\OpenGL\GLFWStructs.cs" />
     <Compile Include="GLX-Engine\Physics\Physic.cs" />
     <Compile Include="GLX-Engine\Scene.cs" />
-    <Compile Include="GLX-Engine\Input\KeyInputHandler.cs" />
+    <Compile Include="GLX-Engine\Utils\KeyInputHandler.cs" />
     <Compile Include="GLX-Engine\Sound.cs" />
     <Compile Include="GLX-Engine\SoundChannel.cs" />
     <Compile Include="GLX-Engine\Sprite.cs" />
@@ -93,9 +90,9 @@
     <Compile Include="GLX-Engine\Pivot.cs" />
     <Compile Include="GLX-Engine\AnimationSprite.cs" />
     <Compile Include="GLX-Engine\Mathf.cs" />
-    <Compile Include="GLX-Engine\Input\Input.cs" />
-    <Compile Include="GLX-Engine\Input\Key.cs" />
-    <Compile Include="GLX-Engine\Input\MouseHandler.cs" />
+    <Compile Include="GLX-Engine\Utils\Input.cs" />
+    <Compile Include="GLX-Engine\Utils\Key.cs" />
+    <Compile Include="GLX-Engine\Utils\MouseHandler.cs" />
     <Compile Include="GLX-Engine\Utils\Time.cs" />
     <Compile Include="GLX-Engine\Utils\Utils.cs" />
     <Compile Include="GLX-Engine\AddOns\Camera.cs" />

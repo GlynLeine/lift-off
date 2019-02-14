@@ -35,17 +35,17 @@ namespace GLXEngine
         /// <param name='fullScreen'>
         /// If set to <c>true</c> the application will run in fullscreen mode.
         /// </param>
-        public Game(int a_width, int a_height, string a_name = "", bool a_fullScreen = false, bool a_vSync = true, int a_realWidth = -1, int a_realHeight = -1, bool a_pixelArt = false) : base()
+        public Game(int pWidth, int pHeight, bool pFullScreen, bool pVSync = true, int pRealWidth = -1, int pRealHeight = -1, bool pPixelArt = false) : base()
         {
-            if (a_realWidth <= 0)
+            if (pRealWidth <= 0)
             {
-                a_realWidth = a_width;
+                pRealWidth = pWidth;
             }
-            if (a_realHeight <= 0)
+            if (pRealHeight <= 0)
             {
-                a_realHeight = a_height;
+                pRealHeight = pHeight;
             }
-            PixelArt = a_pixelArt;
+            PixelArt = pPixelArt;
 
             if (PixelArt)
             {
@@ -62,9 +62,9 @@ namespace GLXEngine
             {
                 main = this;
                 _glContext = new GLContext(this);
-                _glContext.CreateWindow(a_width, a_height, a_name, a_fullScreen, a_vSync, a_realWidth, a_realHeight);
+                _glContext.CreateWindow(pWidth, pHeight, pFullScreen, pVSync, pRealWidth, pRealHeight);
 
-                _renderRange = new Rectangle(0, 0, a_width, a_height);
+                _renderRange = new Rectangle(0, 0, pWidth, pHeight);
 
                 //register ourselves for updates
                 Add(this);

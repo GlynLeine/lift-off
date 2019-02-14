@@ -13,7 +13,7 @@ namespace GameProject
     public class Program : Game
     {
         Overworld overworld;
-        public Program() : base(1280, 720)        // Create a window that's 800x600 and NOT fullscreen
+        public Program() : base(1280, 720, false)        // Create a window that's 800x600 and NOT fullscreen
         {
             m_keyInputHandler.CreateEvent("MoveForward");
             m_keyInputHandler.CreateEvent("MoveRight");
