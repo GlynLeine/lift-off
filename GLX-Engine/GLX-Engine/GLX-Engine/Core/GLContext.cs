@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using GLXEngine.OpenGL;
 
 namespace GLXEngine.Core
@@ -36,6 +37,8 @@ namespace GLXEngine.Core
         private int _lastFPS = 0;
         private bool _vsyncEnabled = false;
 
+        static Color m_clearColor = Color.FromArgb(255, 0, 0, 0);
+
         private static double _realToLogicWidthRatio;
         private static double _realToLogicHeightRatio;
 
@@ -63,6 +66,12 @@ namespace GLXEngine.Core
         {
             get { return WindowSize.instance.height; }
         }
+
+        //------------------------------------------------------------------------------------------------------------------------
+        //														ClearColor
+        //------------------------------------------------------------------------------------------------------------------------
+        public static Color clearColor
+            {   get { return m_clearColor; }  set { m_clearColor = value;   GL.ClearColor(m_clearColor.R/255f, m_clearColor.G/255f, m_clearColor.B/255f, m_clearColor.A/255f); } }
 
         //------------------------------------------------------------------------------------------------------------------------
         //														setupWindow()

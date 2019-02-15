@@ -396,6 +396,19 @@ namespace GLXEngine
             }
         }
 
+        public Vector2 TransformPoint(Vector2 a_position)
+        {
+            Vector2 ret = base.TransformPoint(a_position.x, a_position.y);
+            if (parent == null)
+            {
+                return ret;
+            }
+            else
+            {
+                return parent.TransformPoint(ret.x, ret.y);
+            }
+        }
+
         public Vector2 screenPosition
         {
             get
@@ -425,6 +438,19 @@ namespace GLXEngine
         public override Vector2 InverseTransformPoint(float x, float y)
         {
             Vector2 ret = base.InverseTransformPoint(x, y);
+            if (parent == null)
+            {
+                return ret;
+            }
+            else
+            {
+                return parent.InverseTransformPoint(ret.x, ret.y);
+            }
+        }
+
+        public Vector2 InverseTransformPoint(Vector2 a_position)
+        {
+            Vector2 ret = base.InverseTransformPoint(a_position.x, a_position.y);
             if (parent == null)
             {
                 return ret;
