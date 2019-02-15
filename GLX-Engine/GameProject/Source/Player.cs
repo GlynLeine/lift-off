@@ -30,7 +30,6 @@ namespace GameProject
             m_guns[0].SetActive(true);
 
             m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
-            m_sprite.y -= 10;
             m_sprite.rotation = 45;
             AddChild(m_sprite);
 
@@ -100,7 +99,7 @@ namespace GameProject
                 if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
                 {
                     other.Destroy();
-                    m_hp.current -= 10f;
+                    m_hp.current -= 5f;
                 }
             }
         }

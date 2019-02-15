@@ -52,6 +52,7 @@ namespace GameProject
                 m_shotSound = new Sound("Audio/shotgun_shot.wav");
             }
 
+            y += 10;
             x -= 10;
             m_reloadTimeBuffer = m_reloadTime;
             m_clip = m_clipSize;
@@ -143,7 +144,7 @@ namespace GameProject
                 m_clip--;
 
                 if (m_reloadStyle == ReloadStyle.COMPLETE_CLIP)
-                    CreateBullet();
+                    CreateBullet(2);
                 else
                     for (int i = -3; i < 6; i++)
                         CreateBullet(i);
@@ -159,7 +160,7 @@ namespace GameProject
             ((Overworld)m_scene).bullets.Add(bullet);
             Vector2 fwd = new Vector2(m_owner.rotation);
             bullet.position = m_scene.InverseTransformPoint(screenPosition) + fwd * m_sprite.width;
-            bullet.m_velocity = new Vector2(m_owner.rotation + a_angleOffset).SetMagnitude(800);
+            bullet.m_velocity = Vector2.RandomFromAngle(m_owner.rotation - a_angleOffset, m_owner.rotation + a_angleOffset).SetMagnitude(800);
 
             m_scene.AddChild(bullet);
         }

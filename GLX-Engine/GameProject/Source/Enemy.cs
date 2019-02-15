@@ -27,7 +27,6 @@ namespace GameProject
             m_hp = new Hp();
 
             m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
-            m_sprite.y -= 10;
             m_sprite.rotation = 45;
             AddChild(m_sprite);
 
@@ -68,29 +67,59 @@ namespace GameProject
                 Destroy();
             }
 
-            Flock(50, 0, 400);
+            Flock(100, 0, 400);
+
             if (m_player.m_hp.current > 0)
-                Flock(new List<GameObject> { m_player }, 300, 0, 900);
+            {
+                Flock(new List<GameObject> { m_player }, 500, 0, 900);
 
-            m_force += Seperate(((Overworld)m_scene).bullets.FindAll(bullet => { return ((Bullet)bullet).m_owner.GetType().Equals(typeof(Player));}), 200.0f) * 100f;
+                if (Utils.Random(0, 500) <= 1 && Vector2.Distance(position, m_player.position) < 900)
+                {
+                    m_gun.Shoot();
+                }
 
-            //m_canvas.Stroke(System.Drawing.Color.White);
-            //m_canvas.Line(screenPosition.x, screenPosition.y, screenPosition.x + m_force.x * 10, screenPosition.y + m_force.y * 10);
+                rotation = (m_player.position - position).angle;
+
+            }
+
+            List<GameObject> bullets = ((Overworld)m_scene).bullets.FindAll(a_bullet => { return ((Bullet)a_bullet).m_owner.GetType().Equals(typeof(Player)); });
+            bullets = bullets.FindAll(a_bullet =>
+            {
+                Bullet bullet = (Bullet)a_bullet;
+                float angle = Mathf.Abs(bullet.m_velocity.angle - (position - bullet.position).angle);
+                return angle < 90 || (angle < 360 && angle > 270);
+            });
+
+            bullets.ForEach(a_bullet =>
+            {
+                Bullet bullet = (Bullet)a_bullet;
+                Vector2 bulletDirection = bullet.m_velocity.normal;
+                Vector2 bulletToMe = (position - bullet.position);
+
+                //m_canvas.Stroke(System.Drawing.Color.White);
+                //m_canvas.Line(bullet.screenPosition.x, bullet.screenPosition.y, bullet.screenPosition.x + bulletToMe.x * 1000, bullet.screenPosition.y + bulletToMe.y * 1000);
+
+                Vector2 strafeDirection = new Vector2(-bulletDirection.y, bulletDirection.x).normal;
+                float theta = Mathf.Abs(strafeDirection.angle - bulletToMe.angle);
+                if (!(theta < 90 || (theta < 360 && theta > 270)))
+                    strafeDirection *= -1;
+
+                //m_canvas.Stroke(System.Drawing.Color.FromArgb(0, 0, 255));
+                //m_canvas.Line(screenPosition.x, screenPosition.y, screenPosition.x + strafeDirection.x * 100, screenPosition.y + strafeDirection.y * 100);
+
+                float projectedDistanceX = bulletDirection.Dot(bulletToMe);
+                float projectedDistanceY = strafeDirection.Dot(bullet.position - position);
+                if(projectedDistanceX < 200 && projectedDistanceX > 0 && projectedDistanceY < 0 && projectedDistanceY > -50)
+                    m_force += strafeDirection*m_maxForce*10;
+            });
 
             m_velocity += m_force;
             if (m_velocity.magnitude > m_maxSpeed)
                 m_velocity.magnitude = m_maxSpeed;
 
-            rotation = (m_player.position - position).angle;
-
             position += m_velocity * a_dt;
 
             m_force *= 0;
-
-            if (Utils.Random(0, 1000) <= a_dt)
-            {
-                m_gun.Shoot();
-            }
         }
 
         protected override void RenderSelf(GLContext glContext)

@@ -91,7 +91,7 @@ namespace GameProject
             return steer;
         }
 
-        public Vector2 Seperate(List<GameObject> a_objects, float a_seperationDistance)
+        public Vector2 Seperate(List<GameObject> a_objects, float a_seperationDistance, float a_seperationStrength = m_maxSpeed, float a_forceClamp = m_maxForce)
         {
             Vector2 steer = new Vector2();
             int count = 0;
@@ -115,16 +115,16 @@ namespace GameProject
 
             if (steer.magnitude > 0)
             {
-                steer.magnitude = m_maxSpeed;
+                steer.magnitude = a_seperationStrength;
                 steer -= m_velocity;
-                if (steer.magnitude > m_maxForce)
+                if (steer.magnitude > a_forceClamp)
                 {
-                    steer.magnitude = m_maxForce;
+                    steer.magnitude = a_forceClamp;
                 }
             }
 
-            //m_canvas.Stroke(System.Drawing.Color.Red);
-            //m_canvas.Line(screenPosition.x, screenPosition.y, screenPosition.x + steer.x * 15, screenPosition.y + steer.y * 15);
+            //m_debugDraw.Stroke(System.Drawing.Color.Red);
+            //m_debugDraw.Line(screenPosition.x, screenPosition.y, screenPosition.x + steer.x * 15, screenPosition.y + steer.y * 15);
             return steer;
         }
 
