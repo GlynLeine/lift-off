@@ -15,6 +15,7 @@ namespace GameProject
 
     public class Program : Game
     {
+
         Overworld overworld;
         public Program() : base(1280, 720, false)        // Create a window that's 800x600 and NOT fullscreen
         {
@@ -36,6 +37,7 @@ namespace GameProject
             m_keyInputHandler.MapEventToKeyAction("Shoot", Key.SPACE);
             m_keyInputHandler.MapEventToKeyAction("Reload", Key.R);
             m_keyInputHandler.MapEventToKeyAction("SwitchWeapon", Key.E);
+            m_keyInputHandler.MapEventToKeyAction("Dodge", Key.NUMPAD_0);
 
             m_keyInputHandler.MapEventToKeyAxis("MoveForward", Key.W, 1f);
             m_keyInputHandler.MapEventToKeyAxis("MoveForward", Key.S, -1f);

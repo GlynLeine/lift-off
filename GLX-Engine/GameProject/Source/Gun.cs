@@ -17,8 +17,7 @@ namespace GameProject
         float m_reloadTime;
         float m_reloadTimeBuffer;
         bool m_reloading = false;
-
-        int m_clipSize = 10;
+        int m_clipSize = int.MaxValue; //10;
         int m_clip;
 
         bool m_active = false;
@@ -60,6 +59,27 @@ namespace GameProject
             m_owner = a_owner;
             m_sprite.SetOrigin(0, m_sprite.height / 2f);
             AddChild(m_sprite);
+        }
+
+        protected override Collider createCollider()
+        {
+            return new BoxCollider(m_sprite, new System.Type[] { GetType() });
+        }
+
+        public void OnCollision(GameObject other)
+        {
+            if (other is Bullet)
+            {
+                if (!((Bullet)other).m_owner.GetType().Equals(m_owner.GetType()))
+                {
+                    other.Destroy();
+                    if (!m_owner.GetType().Equals(typeof(Player)))
+                    {
+                        ((Overworld)m_scene).score += 1;
+                        Destroy();
+                    }
+                }
+            }
         }
 
         public float CoolDown { get { return Mathf.Clamp((m_reloadTimeBuffer / m_reloadTime), 0f, 1f); } }
@@ -160,7 +180,7 @@ namespace GameProject
             ((Overworld)m_scene).bullets.Add(bullet);
             Vector2 fwd = new Vector2(m_owner.rotation);
             bullet.position = m_scene.InverseTransformPoint(screenPosition) + fwd * m_sprite.width;
-            bullet.m_velocity = Vector2.RandomFromAngle(m_owner.rotation - a_angleOffset, m_owner.rotation + a_angleOffset).SetMagnitude(800);
+            bullet.m_velocity = Vector2.RandomFromAngle(m_owner.rotation - a_angleOffset, m_owner.rotation + a_angleOffset).SetMagnitude(1000);
 
             m_scene.AddChild(bullet);
         }

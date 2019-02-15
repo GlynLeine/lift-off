@@ -59,14 +59,14 @@ namespace GLXEngine.Core
                     hullB[i] = new Vector2(extendsB[i]);// - positionB;
                 }
 
-                if(areaOverlap(hullA, hullB))
-                    return true;
-                return areaOverlap(hullB, hullA);
+                //if(areaOverlap(hullA, hullB))
+                //    return true;
+                //return areaOverlap(hullB, hullA);
 
-                //if (CircleBroadPhase(hullA, positionA, _owner.parent.m_velocity, hullB, positionB, ((BoxCollider)other)._owner.parent.m_velocity))
-                //    return SATNarrowPhase(hullA, positionA, hullB, positionB);
+                if (CircleBroadPhase(hullA, positionA, _owner.parent.m_velocity, hullB, positionB, ((BoxCollider)other)._owner.parent.m_velocity))
+                    return SATNarrowPhase(hullA, positionA, hullB, positionB);
 
-                //return false;
+                return false;
             }
             else
             {

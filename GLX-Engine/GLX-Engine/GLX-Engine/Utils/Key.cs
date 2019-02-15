@@ -73,6 +73,7 @@ namespace GLXEngine
         BACKSPACE = 295,
         LEFT_CTRL = 289,
         RIGHT_CTRL = 290,
+        NUMPAD_0 = 302,
         NUMPAD_1 = 303,
         NUMPAD_2 = 304,
         NUMPAD_3 = 305,

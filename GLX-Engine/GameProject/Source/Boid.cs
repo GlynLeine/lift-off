@@ -9,9 +9,8 @@ namespace GameProject
     {
         protected Vector2 m_force;
 
-        protected const uint m_flockRange = 10;
-        protected const float m_maxSpeed = 200f;
-        protected const float m_maxForce = 5f;
+        protected const float m_maxSpeed = 500f;
+        protected const float m_maxForce = 10f;
 
         protected List<GameObject> m_others;
 

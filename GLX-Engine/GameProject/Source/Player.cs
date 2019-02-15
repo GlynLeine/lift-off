@@ -9,7 +9,10 @@ namespace GameProject
         const float m_speed = 600f;
         const float m_angularAcceleration = 5f;
 
-        Vector2 m_direction = new Vector2(0f);
+        Vector2 m_direction = new Vector2();
+
+        Vector2 m_dodgeForce = new Vector2();
+        Vector2 m_movementForce = new Vector2();
 
         Sprite m_sprite = new Sprite("Textures/player.png");
 
@@ -46,16 +49,16 @@ namespace GameProject
 
         public void MoveForward(float a_value)
         {
-            if (m_velocity.sqrMagnitude > 0) m_velocity.Normalize();
-            m_velocity.y -= a_value;
-            if (m_velocity.sqrMagnitude > 0) m_velocity.magnitude = m_speed;
+            if (m_movementForce.sqrMagnitude > 0) m_movementForce.Normalize();
+            m_movementForce.y -= a_value;
+            if (m_movementForce.sqrMagnitude > 0) m_movementForce.magnitude = m_speed;
         }
 
         public void MoveRight(float a_value)
         {
-            if (m_velocity.sqrMagnitude > 0) m_velocity.Normalize();
-            m_velocity.x += a_value;
-            if (m_velocity.sqrMagnitude > 0) m_velocity.magnitude = m_speed;
+            if (m_movementForce.sqrMagnitude > 0) m_movementForce.Normalize();
+            m_movementForce.x += a_value;
+            if (m_movementForce.sqrMagnitude > 0) m_movementForce.magnitude = m_speed;
         }
 
         public void FaceForward(float a_value)
@@ -80,6 +83,15 @@ namespace GameProject
                 m_guns[m_currentGun].Reload();
         }
 
+        public void Dodge(bool a_pressed)
+        {
+            if (!a_pressed)
+            {
+                Vector2 fwd = new Vector2(rotation);
+                    m_dodgeForce -= fwd*1500;
+            }
+        }
+
         public void SwitchWeapon(bool a_pressed)
         {
             if (!a_pressed)
@@ -94,14 +106,14 @@ namespace GameProject
 
         public void OnCollision(GameObject other)
         {
-            if (other is Bullet)
-            {
-                if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
-                {
-                    other.Destroy();
-                    m_hp.current -= 5f;
-                }
-            }
+            //if (other is Bullet)
+            //{
+            //    if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
+            //    {
+            //        other.Destroy();
+            //        m_hp.current -= 5f;
+            //    }
+            //}
         }
 
         void Update(float a_dt)
@@ -122,8 +134,11 @@ namespace GameProject
                 rotation = m_direction.angle;
             m_direction *= 0;
 
+            m_velocity = m_dodgeForce + m_movementForce;
+
             position += m_velocity * a_dt;
-            m_velocity *= 0;
+            m_dodgeForce *= 0.9f;
+            m_movementForce *= 0;
 
         }
 
