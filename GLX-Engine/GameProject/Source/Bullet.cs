@@ -8,10 +8,14 @@ namespace GameProject
     {
         Sprite m_sprite = new Sprite("Textures/verticalline.png");
 
-        public Bullet(Scene a_scene) : base(a_scene)
+        public GameObject m_owner;
+
+        public Bullet(Scene a_scene, GameObject a_shooter) : base(a_scene)
         {
             m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
             AddChild(m_sprite);
+
+            m_owner = a_shooter;
         }
 
         protected override Collider createCollider()

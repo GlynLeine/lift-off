@@ -8,7 +8,7 @@ namespace GLXEngine
     {
         protected UpdateManager m_updateManager;
         protected CollisionManager m_collisionManager;
-        protected KeyInputHandler m_keyInputHandler;
+        public KeyInputHandler m_keyInputHandler;
         protected List<GameObject> m_gameObjectsContained;
 
         private List<Scene> m_subScenes;
