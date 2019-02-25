@@ -10,11 +10,11 @@ namespace GameProject
         public Player player;
         public List<GameObject> enemies;
         public List<GameObject> bullets;
-        EasyDraw backGround;
+        EasyDraw UI;
         Sound backgroundMusic;
         SoundChannel backgroundMusicChannel;
 
-        readonly uint enemyCount = (uint)((Game.main.width * Game.main.height)/48000f);
+        readonly uint enemyCount = (uint)((Game.main.width * Game.main.height) / 48000f);
 
         public int score = 0;
 
@@ -29,19 +29,19 @@ namespace GameProject
             base.Start();
 
             SetXY(game.width / 2, game.height / 2);
-            backGround = new EasyDraw(Game.main.width, Game.main.height);
-            backGround.autoClear = true;
-            backGround.SetOrigin(backGround.width / 2, backGround.height / 2);
-            AddChild(backGround);
+            UI = new EasyDraw(Game.main.width, Game.main.height);
+            UI.autoClear = true;
+            UI.SetOrigin(UI.width / 2, UI.height / 2);
+            AddChild(UI);
 
-            player = new Player(this, backGround);
+            player = new Player(this, UI);
             AddChild(player);
             bullets = new List<GameObject>();
 
             enemies = new List<GameObject>();
             for (int i = 0; i < enemyCount; i++)
             {
-                Enemy enemy = new Enemy(this, player, ref enemies, backGround);
+                Enemy enemy = new Enemy(this, player, ref enemies, UI);
                 enemies.Add(enemy);
                 AddChild(enemy);
                 Vector2 pos = new Vector2(Utils.Random(0, 2) == 0 ? game.RenderRange.left : game.RenderRange.right, Utils.Random(0, 2) == 0 ? game.RenderRange.top : game.RenderRange.bottom);
@@ -50,7 +50,7 @@ namespace GameProject
                 enemy.screenPosition = pos;
             }
 
-            backgroundMusic = new Sound("Audio/music.wav", true);
+            backgroundMusic = new Sound("Audio/game_loop.wav", true);
             backgroundMusicChannel = backgroundMusic.Play();
 
             System.Console.WriteLine(GetDiagnostics());
@@ -59,11 +59,11 @@ namespace GameProject
         public void Update(float a_dt)
         {
             position = -player.position + (new Vector2(Game.main.width, Game.main.height) * 0.5f);
-            backGround.position = player.position;
+            UI.position = player.position;
 
             while (enemies.Count < enemyCount)
             {
-                Enemy enemy = new Enemy(this, player, ref enemies, backGround);
+                Enemy enemy = new Enemy(this, player, ref enemies, UI);
                 enemies.Add(enemy);
                 AddChild(enemy);
                 Vector2 pos = new Vector2(Utils.Random(0, 2) == 0 ? game.RenderRange.left - 50 : game.RenderRange.right + 50, Utils.Random(0, 2) == 0 ? game.RenderRange.top - 50 : game.RenderRange.bottom + 50);
@@ -82,8 +82,8 @@ namespace GameProject
         public override void Render(GLContext glContext)
         {
             base.Render(glContext);
-            backGround.Fill(0, 255, 05);
-            backGround.Text("Score: " + score.ToString(), 50, 50);
+            UI.Fill(0, 255, 05);
+            UI.Text("Score: " + score.ToString(), 50, 50);
         }
     }
 }

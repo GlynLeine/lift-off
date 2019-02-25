@@ -53,7 +53,7 @@ namespace GLXEngine
         private Dictionary<string, Dictionary<Key, float>> m_axisStorage = new Dictionary<string, Dictionary<Key, float>>();
         private Dictionary<string, List<Key>> m_actionStorage = new Dictionary<string, List<Key>>();
 
-        //private Dictionary<int, GameController> m_controllers = new Dictionary<EventID, GameController>();
+        //private Dictionary<int, GameController> m_controllers = new Dictionary<int, GameController>();
 
         static int count = 0;
 

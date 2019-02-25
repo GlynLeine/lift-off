@@ -17,7 +17,7 @@ namespace GameProject
         float m_reloadTime;
         float m_reloadTimeBuffer;
         bool m_reloading = false;
-        int m_clipSize = int.MaxValue; //10;
+        int m_clipSize = 10;
         int m_clip;
 
         bool m_active = false;
@@ -27,12 +27,13 @@ namespace GameProject
         SoundChannel m_reloadSoundChannel;
 
         GameObject m_owner;
+        GameObject m_player;
 
         protected ReloadStyle m_reloadStyle;
 
         Sprite m_sprite = new Sprite("Textures/gun.png");
 
-        public Gun(Scene a_scene, ReloadStyle a_reloadStyle, GameObject a_owner) : base(a_scene)
+        public Gun(Scene a_scene, ReloadStyle a_reloadStyle, GameObject a_owner, GameObject a_player) : base(a_scene)
         {
             m_reloadStyle = a_reloadStyle;
 
@@ -42,6 +43,7 @@ namespace GameProject
                 m_shotTime = 1f / 10f;
                 m_reloadSound = new Sound("Audio/reload_mag.wav");
                 m_shotSound = new Sound("Audio/gun_shot.wav");
+                m_clipSize = 30;
             }
             else
             {
@@ -57,6 +59,7 @@ namespace GameProject
             m_clip = m_clipSize;
 
             m_owner = a_owner;
+            m_player = a_player;
             m_sprite.SetOrigin(0, m_sprite.height / 2f);
             AddChild(m_sprite);
         }
@@ -84,7 +87,7 @@ namespace GameProject
 
         public float CoolDown { get { return Mathf.Clamp((m_reloadTimeBuffer / m_reloadTime), 0f, 1f); } }
         public int Clip { get { return m_clip; } set { m_clip = value < 0 ? 0 : (value > m_clipSize ? m_clipSize : value); } }
-
+        public bool IsReloading { get { return m_reloading; } }
         public int ClipSize { get { return m_clipSize; } }
 
         public void Update(float a_dt)
@@ -150,9 +153,13 @@ namespace GameProject
 
         public void Reload()
         {
-            if (m_reloadStyle == ReloadStyle.COMPLETE_CLIP)
-                m_reloadSoundChannel = m_reloadSound.Play();
-            m_reloading = true;
+            if(!(m_clip == m_clipSize))
+            {
+                if (m_reloadStyle == ReloadStyle.COMPLETE_CLIP)
+                    m_reloadSoundChannel = m_reloadSound.Play();
+
+                m_reloading = true;
+            }
         }
 
         public void Shoot()
@@ -175,7 +182,7 @@ namespace GameProject
 
         void CreateBullet(float a_angleOffset = 0f)
         {
-            Bullet bullet = new Bullet(m_scene, m_owner);
+            Bullet bullet = new Bullet(m_scene, m_owner, m_player);
             bullet.SetScaleXY(4);
             ((Overworld)m_scene).bullets.Add(bullet);
             Vector2 fwd = new Vector2(m_owner.rotation);

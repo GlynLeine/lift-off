@@ -14,7 +14,9 @@ namespace GameProject
         Vector2 m_dodgeForce = new Vector2();
         Vector2 m_movementForce = new Vector2();
 
-        Sprite m_sprite = new Sprite("Textures/player.png");
+        float m_animTimeBuffer = 0;
+        float m_animFrameTime = 0.15f;
+        AnimationSprite m_sprite = new AnimationSprite("Textures/playerAnim.png", 6, 1);
 
         public Hp m_hp = new Hp();
         EasyDraw m_canvas;
@@ -23,18 +25,21 @@ namespace GameProject
         SoundChannel m_deathSoundChannel;
 
         List<Gun> m_guns;
+
         int m_currentGun = 0;
 
         public Player(Scene a_scene, EasyDraw a_canvas) : base(a_scene)
         {
-            m_guns = new List<Gun> { new Gun(a_scene, ReloadStyle.COMPLETE_CLIP, this), new Gun(a_scene, ReloadStyle.SHOT_BY_SHOT, this) };
+            m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
+            m_sprite.x -= 10;
+            m_sprite.y -= 12;
+            m_sprite.rotation = 45;
+            AddChild(m_sprite);
+
+            m_guns = new List<Gun> { new Gun(a_scene, ReloadStyle.COMPLETE_CLIP, this, this), new Gun(a_scene, ReloadStyle.SHOT_BY_SHOT, this, this) };
             foreach (Gun gun in m_guns)
                 AddChild(gun);
             m_guns[0].SetActive(true);
-
-            m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
-            m_sprite.rotation = 45;
-            AddChild(m_sprite);
 
             m_canvas = a_canvas;
 
@@ -79,7 +84,7 @@ namespace GameProject
 
         public void Reload(bool a_pressed)
         {
-            if (a_pressed)
+            if (!a_pressed && !m_guns[m_currentGun].IsReloading)
                 m_guns[m_currentGun].Reload();
         }
 
@@ -88,7 +93,7 @@ namespace GameProject
             if (!a_pressed)
             {
                 Vector2 fwd = new Vector2(rotation);
-                    m_dodgeForce -= fwd*1500;
+                m_dodgeForce -= fwd * 1500;
             }
         }
 
@@ -106,14 +111,14 @@ namespace GameProject
 
         public void OnCollision(GameObject other)
         {
-            //if (other is Bullet)
-            //{
-            //    if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
-            //    {
-            //        other.Destroy();
-            //        m_hp.current -= 5f;
-            //    }
-            //}
+            if (other is Bullet)
+            {
+                if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
+                {
+                    other.Destroy();
+                    m_hp.current -= 5f;
+                }
+            }
         }
 
         void Update(float a_dt)
@@ -140,6 +145,12 @@ namespace GameProject
             m_dodgeForce *= 0.9f;
             m_movementForce *= 0;
 
+            m_animTimeBuffer += a_dt;
+            if (m_animTimeBuffer >= m_animFrameTime)
+            {
+                m_animTimeBuffer -= m_animFrameTime;
+                m_sprite.NextFrame();
+            }
         }
 
         protected override void RenderSelf(GLContext glContext)
@@ -149,13 +160,27 @@ namespace GameProject
                 float percentage = Mathf.Clamp(m_hp.current / m_hp.max, 0f, 1f);
                 Vector2i color = new Vector2i(Mathf.Round(255 * (1 - percentage)), Mathf.Round(255 * percentage)).SetMagnitude(255);
 
-                m_canvas.Stroke(System.Drawing.Color.FromArgb(color.x, color.y, 0));
-                m_canvas.StrokeWeight(5);
-                m_canvas.Line(screenPosition.x - m_hp.current / 2, screenPosition.y + m_sprite.height / 2, screenPosition.x + m_hp.current / 2, screenPosition.y + m_sprite.height / 2);
+                m_canvas.Stroke(0);
+                m_canvas.Fill(color.x, color.y, 0);
+                m_canvas.StrokeWeight(1);
+
+                Vector2 left = new Vector2();
+                Vector2 right = new Vector2();
+                left.x = screenPosition.x - (m_hp.current / 2);
+                left.y = screenPosition.y + (m_sprite.height / 2);
+
+                right.x = screenPosition.x + (m_hp.current / 2);
+                right.y = screenPosition.y + (m_sprite.height / 2);
+
+                Vector2 bottomLeft = new Vector2(left.x, left.y + 5f);
+                Vector2 bottomRight = new Vector2(right.x, right.y + 5f);
+
+                m_canvas.Quad(left.x, left.y, right.x, right.y, bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y);
 
                 percentage = m_guns[m_currentGun].Clip / (float)m_guns[m_currentGun].ClipSize * m_hp.max;
                 m_canvas.Stroke(System.Drawing.Color.Aqua);
-                m_canvas.Line(screenPosition.x - percentage / 2, screenPosition.y + m_sprite.height / 2 + 5, screenPosition.x + percentage / 2, screenPosition.y + m_sprite.height / 2 + 5);
+                m_canvas.StrokeWeight(5);
+                m_canvas.Line(screenPosition.x - percentage / 2, screenPosition.y + m_sprite.height / 2 + 8, screenPosition.x + percentage / 2, screenPosition.y + m_sprite.height / 2 + 8);
             }
         }
     }

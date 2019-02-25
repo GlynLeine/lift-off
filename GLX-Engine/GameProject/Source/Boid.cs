@@ -9,8 +9,8 @@ namespace GameProject
     {
         protected Vector2 m_force;
 
-        protected const float m_maxSpeed = 500f;
-        protected const float m_maxForce = 10f;
+        protected float m_maxSpeed = 500f;
+        protected float m_maxForce = 10f;
 
         protected List<GameObject> m_others;
 
@@ -90,7 +90,7 @@ namespace GameProject
             return steer;
         }
 
-        public Vector2 Seperate(List<GameObject> a_objects, float a_seperationDistance, float a_seperationStrength = m_maxSpeed, float a_forceClamp = m_maxForce)
+        public Vector2 Seperate(List<GameObject> a_objects, float a_seperationDistance, float a_seperationStrength = -1, float a_forceClamp = -1)
         {
             Vector2 steer = new Vector2();
             int count = 0;
@@ -114,11 +114,22 @@ namespace GameProject
 
             if (steer.magnitude > 0)
             {
-                steer.magnitude = a_seperationStrength;
+                if (a_seperationStrength < 0)
+                    steer.magnitude = m_maxSpeed;
+                else
+                    steer.magnitude = a_seperationStrength;
+
                 steer -= m_velocity;
-                if (steer.magnitude > a_forceClamp)
+
+                if (a_forceClamp < 0)
                 {
-                    steer.magnitude = a_forceClamp;
+                    if (steer.magnitude > m_maxForce)
+                        steer.magnitude = m_maxForce;
+                }
+                else
+                {
+                    if (steer.magnitude > a_forceClamp)
+                        steer.magnitude = a_forceClamp;
                 }
             }
 

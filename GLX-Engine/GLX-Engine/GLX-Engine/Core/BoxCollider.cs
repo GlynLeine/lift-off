@@ -5,7 +5,7 @@ namespace GLXEngine.Core
 {
     public class BoxCollider : Collider
     {
-        private Sprite _owner;
+        private Sprite m_owner;
         private List<Type> _ignore;
 
         //------------------------------------------------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------		
         public BoxCollider(Sprite owner, Type[] ignore = null)
         {
-            _owner = owner;
+            m_owner = owner;
             if (ignore != null)
                 _ignore = new List<Type>(ignore);
         }
@@ -25,47 +25,88 @@ namespace GLXEngine.Core
         {
             if (other is BoxCollider)
             {
-                if (_owner.parent == null)
+                if (m_owner.parent == null)
                     return false;
 
-                if (((BoxCollider)other)._owner.parent == null)
+                if (((BoxCollider)other).m_owner.parent == null)
                     return false;
 
                 if (_ignore != null)
-                    if (_ignore.Contains(((BoxCollider)other)._owner.parent.GetType()))
+                    if (_ignore.Contains(((BoxCollider)other).m_owner.parent.GetType()))
                         return false;
 
                 if (((BoxCollider)other)._ignore != null)
-                    if (((BoxCollider)other)._ignore.Contains(_owner.parent.GetType()))
+                    if (((BoxCollider)other)._ignore.Contains(m_owner.parent.GetType()))
                         return false;
 
-                Vector2[] extendsA = _owner.GetExtents();
+                Vector2[] extendsA = m_owner.GetExtents();
                 if (extendsA == null) return false;
 
-                Vector2[] extendsB = ((BoxCollider)other)._owner.GetExtents();
+                Vector2[] extendsB = ((BoxCollider)other).m_owner.GetExtents();
                 if (extendsB == null) return false;
 
-                Vector2 positionA = _owner.screenPosition;
+                Vector2 positionA = m_owner.screenPosition;
                 Vector2[] hullA = new Vector2[extendsA.Length];
                 for (int i = 0; i < extendsA.Length; i++)
                 {
-                    hullA[i] = new Vector2(extendsA[i]);// - positionA;
+                    hullA[i] = new Vector2(extendsA[i]) - positionA;
                 }
 
-                Vector2 positionB = ((BoxCollider)other)._owner.screenPosition;
+                Vector2 positionB = ((BoxCollider)other).m_owner.screenPosition;
                 Vector2[] hullB = new Vector2[extendsB.Length];
                 for (int i = 0; i < extendsB.Length; i++)
                 {
-                    hullB[i] = new Vector2(extendsB[i]);// - positionB;
+                    hullB[i] = new Vector2(extendsB[i]) - positionB;
                 }
 
-                //if(areaOverlap(hullA, hullB))
-                //    return true;
-                //return areaOverlap(hullB, hullA);
+                float extendA = 0, extendB = 0;
 
-                if (CircleBroadPhase(hullA, positionA, _owner.parent.m_velocity, hullB, positionB, ((BoxCollider)other)._owner.parent.m_velocity))
-                    return SATNarrowPhase(hullA, positionA, hullB, positionB);
+                foreach (Vector2 point in hullA)
+                {
+                    if (Mathf.Abs(point.x) > extendA)
+                        extendA = point.x;
+                    if (Mathf.Abs(point.y) > extendA)
+                        extendA = point.y;
+                }
 
+                foreach (Vector2 point in hullB)
+                {
+                    if (Mathf.Abs(point.x) > extendB)
+                        extendB = point.x;
+                    if (Mathf.Abs(point.y) > extendB)
+                        extendB = point.y;
+                }
+
+                Vector2 velocityA = m_owner.parent.m_velocity * Time.deltaTime / 1000f;
+                Vector2 velocityB = ((BoxCollider)other).m_owner.parent.m_velocity * Time.deltaTime / 1000f;
+                float speedAsqr = velocityA.sqrMagnitude;
+                float speedBsqr = velocityB.sqrMagnitude;
+
+                if (CircleBroadPhase(hullA, positionA, velocityA, extendA, hullB, positionB, velocityB, extendB))
+                {
+                    //if (speedAsqr >= extendB * extendB && speedBsqr >= extendA * extendA)
+                    //{
+                    //    if (LSINarrowPhase(hullA, positionA, velocityA, hullB, positionB))
+                    //        return true;
+                    //    if (LSINarrowPhase(hullB, positionB, velocityB, hullA, positionA))
+                    //        return true;
+                    //}
+                    //else if (speedAsqr >= extendB * extendB)
+                    //{
+                    //    if (LSINarrowPhase(hullA, positionA, velocityA, hullB, positionB))
+                    //        return true;
+                    //}
+                    //else
+                    //{
+                    //    if (LSINarrowPhase(hullB, positionB, velocityB, hullA, positionA))
+                    //        return true;
+                    //}
+
+                    if (SATNarrowPhase(hullA, positionA, hullB, positionB))
+                        return true;
+                    else
+                        return SATNarrowPhase(hullA, positionA + m_owner.parent.m_velocity, hullB, positionB + ((BoxCollider)other).m_owner.parent.m_velocity);
+                }
                 return false;
             }
             else
@@ -79,42 +120,43 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------		
         public override bool HitTestPoint(float x, float y)
         {
-            Vector2[] c = _owner.GetExtents();
+            Vector2[] c = m_owner.GetExtents();
             if (c == null) return false;
             Vector2 p = new Vector2(x, y);
             return pointOverlapsArea(p, c);
         }
 
         //------------------------------------------------------------------------------------------------------------------------
-        //														CircleNarrowPhase()
+        //														CircleBroadPhase()
         //------------------------------------------------------------------------------------------------------------------------
-        private bool CircleBroadPhase(Vector2[] hullA, Vector2 positionA, Vector2 velocityA, Vector2[] hullB, Vector2 positionB, Vector2 velocityB)
+        private bool CircleBroadPhase(Vector2[] hullA, Vector2 positionA, Vector2 velocityA, float extendA, Vector2[] hullB, Vector2 positionB, Vector2 velocityB, float extendB)
         {
-            float extremeA = 0, extremeB = 0;
-
-            foreach (Vector2 point in hullA)
-            {
-                if (Mathf.Abs(point.x) > extremeA)
-                    extremeA = point.x;
-                if (Mathf.Abs(point.y) > extremeA)
-                    extremeA = point.y;
-            }
-
-            foreach (Vector2 point in hullB)
-            {
-                if (Mathf.Abs(point.x) > extremeB)
-                    extremeB = point.x;
-                if (Mathf.Abs(point.y) > extremeB)
-                    extremeB = point.y;
-            }
-
             float deltaTime = Time.deltaTime / 1000f;
-            float radiusA = velocityA.magnitude * deltaTime * 0.5f + extremeA;
-            float radiusB = velocityB.magnitude * deltaTime * 0.5f + extremeB;
+            float radiusA = velocityA.magnitude * deltaTime * 0.5f + extendA;
+            float radiusB = velocityB.magnitude * deltaTime * 0.5f + extendB;
 
             Vector2 midPointA = positionA - velocityA * deltaTime * 0.5f;
             Vector2 midPointB = positionB - velocityB * deltaTime * 0.5f;
             return Vector2.Distance(midPointA, midPointB) <= (radiusA + radiusB);
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------
+        //														LSINarrowPhase()
+        //------------------------------------------------------------------------------------------------------------------------
+        private bool LSINarrowPhase(Vector2[] hullA, Vector2 positionA, Vector2 velocityA, Vector2[] hullB, Vector2 positionB)
+        {
+            Vector2 closestPoint = null;
+            foreach(Vector2 point in hullA)
+                if(closestPoint == null)
+                    closestPoint = point;
+                else if(Vector2.Distance(point, positionB) < Vector2.Distance(closestPoint, positionB))
+                    closestPoint = point;
+
+            Vector2 lineEnd = closestPoint + velocityA;
+
+
+
+            return false;
         }
 
         //------------------------------------------------------------------------------------------------------------------------
@@ -152,7 +194,7 @@ namespace GLXEngine.Core
                 float minA = float.MaxValue, maxA = float.MinValue, minB = float.MaxValue, maxB = float.MinValue;
                 for (int j = 0; j < hullA.Length; j++)
                 {
-                    float projection = hullA[j].Dot(axes[i]);
+                    float projection = (hullA[j] + positionA).Dot(axes[i]);
                     if (projection < minA)
                         minA = projection;
                     if (projection > maxA)
@@ -160,7 +202,7 @@ namespace GLXEngine.Core
                 }
                 for (int j = 0; j < hullB.Length; j++)
                 {
-                    float projection = hullB[j].Dot(axes[i]);
+                    float projection = (hullB[j] + positionB).Dot(axes[i]);
                     if (projection < minB)
                         minB = projection;
                     if (projection > maxB)

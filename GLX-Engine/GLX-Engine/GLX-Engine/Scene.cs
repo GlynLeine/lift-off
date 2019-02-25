@@ -222,13 +222,12 @@ namespace GLXEngine
 
         public bool InView(Vector2[] a_points)
         {
-            if (a_points.Length % 2 == 0)
-                for (int i = 0; i < a_points.Length; i++)
-                {
-                    Vector2 point = a_points[i];
-                    if (((point.x > RenderRange.left) && (point.y > RenderRange.top) && (point.x <= RenderRange.right) && (point.y <= RenderRange.bottom)))
-                        return true;
-                }
+            for (int i = 0; i < a_points.Length; i++)
+            {
+                Vector2 point = a_points[i];
+                if (((point.x > RenderRange.left) && (point.y > RenderRange.top) && (point.x <= RenderRange.right) && (point.y <= RenderRange.bottom)))
+                    return true;
+            }
             return false;
         }
 
