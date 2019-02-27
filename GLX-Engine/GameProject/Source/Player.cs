@@ -59,7 +59,7 @@ namespace GameProject
             if (m_movementForce.sqrMagnitude > 0) m_movementForce.magnitude = m_speed;
         }
 
-        public void MoveRight(float a_value, List<int> a_controllerID)
+        public void MoveRight(float a_value, List<int> a_controllerIDs)
         {
             if (m_movementForce.sqrMagnitude > 0) m_movementForce.Normalize();
             m_movementForce.x += a_value;

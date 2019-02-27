@@ -17,6 +17,7 @@ namespace GameProject
     {
 
         Overworld overworld;
+
         public Program() : base(1280, 720, false)        // Create a window that's 800x600 and NOT fullscreen
         {
             GLContext.clearColor = Color.FromArgb(255, 128, 128, 128);

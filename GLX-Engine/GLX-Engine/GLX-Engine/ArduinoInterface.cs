@@ -45,6 +45,8 @@ public class ArduinoInterface
     public bool found { get { return m_found; } }
     public bool closed { get { return m_closed; } }
 
+    private const bool m_emulation = true;
+
     /* !!IMPORTANT!!
     ****If you use an arduino Uno, Nano, or any not USB-native chips, set this to true
     */
@@ -57,6 +59,11 @@ public class ArduinoInterface
 
         if (a_search)
             Search(a_persistent);
+
+        m_analogs.Add(1f);
+        m_digitals.Add(true);
+        m_found = true;
+        m_closed = false;
     }
 
     public bool Search(bool a_persistent = false)
@@ -91,13 +98,13 @@ public class ArduinoInterface
                     m_port.Close();
                     try { m_port.Open(); }
                     catch (System.IO.IOException e) { continue; }
-                    //catch (System.UnauthorizedAccessException e) { continue; }
+                    catch (System.UnauthorizedAccessException e) { Console.WriteLine("Not a controller or controller in use by different process"); continue; }
                 }
                 else
                 {
                     try { m_port.Open(); }
                     catch (System.IO.IOException e) { continue; }
-                    //catch (System.UnauthorizedAccessException e) { continue; }
+                    catch (System.UnauthorizedAccessException e) { Console.WriteLine("Not a controller or controller in use by different process"); continue; }
                 }
 
                 m_port.DiscardOutBuffer();
@@ -134,7 +141,7 @@ public class ArduinoInterface
                         {
                             handshakeData = handshakeData.Remove(0, 2);
                             int ID = int.Parse(handshakeData);
-                            if (!m_ignoreList.Contains(m_ID))
+                            if (!m_ignoreList.Contains(ID) || ID == m_ID)
                             {
                                 m_ID = ID;
                                 m_ignoreList.Add(ID);
@@ -270,6 +277,12 @@ public class ArduinoInterface
 
     private bool SendString(string send)
     {
+        if (m_port == null)
+        {
+            Console.WriteLine("Port was never initialised, are you emulating?");
+            return false;
+        }
+
         if (m_port.IsOpen)
             try
             {
@@ -336,17 +349,30 @@ public class ArduinoInterface
             }
             return true;
         }
+
+        if (m_emulation)
+        {
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            m_analogs[0] = 0.5f;     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            m_digitals[0] = true;  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            m_closed = false;      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            return true;           ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        }
+
         return false;
     }
 
     public virtual void Destroy()
     {
-        m_port.Close();
+        if (!m_closed && m_port != null)
+            m_port.Close();
     }
 
-    //Deconstructors in C# ??? is this even legal
+    //Deconstructors in C# ??? is this even legal   Yes it is! ran at shutdown of the program.
     ~ArduinoInterface()
     {
-        m_port.Close();
+        if (!m_closed && m_port != null)
+            m_port.Close();
     }
 }
