@@ -111,14 +111,14 @@ namespace GameProject
 
         public void OnCollision(GameObject other)
         {
-            //if (other is Bullet)
-            //{
-            //    if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
-            //    {
-            //        other.Destroy();
-            //        m_hp.current -= 5f;
-            //    }
-            //}
+            if (other is Bullet)
+            {
+                if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
+                {
+                    other.Destroy();
+                    m_hp.current -= 5f;
+                }
+            }
         }
 
         void Update(float a_dt)

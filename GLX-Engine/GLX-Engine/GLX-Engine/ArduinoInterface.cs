@@ -45,7 +45,7 @@ public class ArduinoInterface
     public bool found { get { return m_found; } }
     public bool closed { get { return m_closed; } }
 
-    private const bool m_emulation = true;
+    private const bool m_emulation = false;
 
     /* !!IMPORTANT!!
     ****If you use an arduino Uno, Nano, or any not USB-native chips, set this to true
