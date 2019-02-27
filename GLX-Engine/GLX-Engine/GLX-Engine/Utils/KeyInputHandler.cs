@@ -1,19 +1,19 @@
 ﻿using GLXEngine.Core;
-using GLXEngine.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.IO.Ports;
 
 
 namespace GLXEngine
 {
-    // Type aliasing for keeping track which integer is to represent an event ID and which is to represent a key.
-    using EventID = System.Int32;
+    // Type aliasing for keeping track which integer is to represent a controller state.
+    using ControllerID = System.Int32;
 
     // Type aliasing instead of creating a custom delegate in order to gain easier compatibility with any function for the scan.
-    using KeyActionDelegate = System.Action<bool>;
-    using KeyAxisDelegate = System.Action<float>;
-    using KeyButtonDelegate = System.Action<Key, bool>;
+    public delegate void KeyActionDelegate(bool a_pressed, ControllerID a_controllerID = -1);
+    public delegate void KeyAxisDelegate(float a_value, List<ControllerID> a_controllerID);
+    public delegate void KeyButtonDelegate(Key a_key, bool a_pressed, ControllerID a_controllerID = -1);
 
     abstract class InputEvent
     {
@@ -36,6 +36,17 @@ namespace GLXEngine
         public new KeyActionDelegate m_delegate = null;
     }
 
+    sealed class InputEventReference
+    {
+        private Func<object> Get { get; set; }
+        private Action<object> Set { get; set; }
+
+        public object Object { get { return Get(); } set { Set(value); } }
+
+        public InputEventReference(object a)
+        { Get = () => a; Set = val => { a = Convert.ChangeType(val, a.GetType()); }; }
+    }
+
     public class KeyInputHandler
     {
         // Mapping of action events to keys.
@@ -44,16 +55,16 @@ namespace GLXEngine
         private Dictionary<Key, Dictionary<InputAxis, float>> m_axisMap;
 
         // Mapping of event names to their ID's.
-        private Dictionary<String, Dictionary<Type, InputEvent>> m_events;
+        private Dictionary<String, Dictionary<Type, InputEventReference>> m_events;
 
         // List of currently pressed keys.
-        private List<Key> m_pressedKeys = new List<Key>();
-        private List<Key> m_releasedKeys = new List<Key>();
+        private Dictionary<Key, List<ControllerID>> m_pressedKeys = new Dictionary<Key, List<ControllerID>>();
+        private Dictionary<Key, List<ControllerID>> m_releasedKeys = new Dictionary<Key, List<ControllerID>>();
 
         private Dictionary<string, Dictionary<Key, float>> m_axisStorage = new Dictionary<string, Dictionary<Key, float>>();
         private Dictionary<string, List<Key>> m_actionStorage = new Dictionary<string, List<Key>>();
 
-        //private Dictionary<int, GameController> m_controllers = new Dictionary<int, GameController>();
+        private Dictionary<ControllerID, GameController> m_controllers = new Dictionary<ControllerID, GameController>();
 
         static int count = 0;
 
@@ -63,7 +74,13 @@ namespace GLXEngine
             count++;
             m_actionsMap = new Dictionary<Key, List<InputAction>>();
             m_axisMap = new Dictionary<Key, Dictionary<InputAxis, float>>();
-            m_events = new Dictionary<string, Dictionary<Type, InputEvent>>();
+            m_events = new Dictionary<string, Dictionary<Type, InputEventReference>>();
+
+            foreach (String portName in SerialPort.GetPortNames())
+            {
+                GameController gameController = new GameController(true);
+                m_controllers.Add(gameController.ID, gameController);
+            }
         }
 
         public KeyInputHandler(KeyInputHandler a_source)
@@ -71,7 +88,7 @@ namespace GLXEngine
             count++;
             m_actionsMap = new Dictionary<Key, List<InputAction>>();
             m_axisMap = new Dictionary<Key, Dictionary<InputAxis, float>>();
-            m_events = new Dictionary<string, Dictionary<Type, InputEvent>>();
+            m_events = new Dictionary<string, Dictionary<Type, InputEventReference>>();
 
             foreach (string eventName in a_source.m_events.Keys)
             {
@@ -86,24 +103,70 @@ namespace GLXEngine
                 foreach (Key actionMapping in actionEvent.Value)
                     MapEventToKeyAction(actionEvent.Key, actionMapping);
 
-            //GL.glfwSetJoystickCallback((int a_joystick, int a_event) =>
-            //    {
-            //        if(a_event == GL.GLFW_CONNECTED)
-            //        {
-
-            //        }
-            //    });
         }
 
 
         public void RetrieveInput()
         {
             m_releasedKeys.Clear();
-            m_releasedKeys.AddRange(GLContext.keyup.Keys);
-            foreach (Key key in GLContext.keydown.Keys)
-                if (!m_pressedKeys.Contains(key)) m_pressedKeys.Add(key);
+
+            #region KeyData
             foreach (Key key in GLContext.keyup.Keys)
-                if (m_pressedKeys.Contains(key)) m_pressedKeys.Remove(key);
+                m_releasedKeys.Add(key, new List<ControllerID> { -1 });
+
+            foreach (Key key in GLContext.keydown.Keys)
+            {
+                if (!m_pressedKeys.ContainsKey(key))
+                    m_pressedKeys.Add(key, new List<ControllerID> { -1 });
+                else if (!m_pressedKeys[key].Contains(-1))
+                    m_pressedKeys[key].Add(-1);
+            }
+
+            foreach (Key key in GLContext.keyup.Keys)
+            {
+                if (m_pressedKeys.ContainsKey(key))
+                    if (m_pressedKeys[key].Contains(-1))
+                        m_pressedKeys[key].Remove(-1);
+            }
+            #endregion
+
+            #region ControllerData
+            foreach (ControllerID controllerID in m_controllers.Keys)
+            {
+                GameController controller = m_controllers[controllerID];
+                controller.Search();
+
+                if (controller.connected)
+                {
+                    foreach (Key key in controller.analogs)
+                    {
+                        if (!m_pressedKeys.ContainsKey(key)) m_pressedKeys.Add(key, new List<ControllerID> { controller.ID });
+                        else if (!m_pressedKeys[key].Contains(controller.ID)) m_pressedKeys[key].Add(controller.ID);
+                    }
+
+                    foreach (Key key in controller.digitals)
+                    {
+                        if (controller.GetDigital(key))
+                        {
+                            if (!m_pressedKeys.ContainsKey(key)) m_pressedKeys.Add(key, new List<ControllerID> { controller.ID });
+                            else if (!m_pressedKeys[key].Contains(controller.ID)) m_pressedKeys[key].Add(controller.ID);
+                        }
+                        else
+                        {
+                            if (m_pressedKeys.ContainsKey(key))
+                            { if (m_pressedKeys[key].Contains(controller.ID)) m_pressedKeys[key].Remove(controller.ID); }
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            List<Key> temp = new List<Key>(m_pressedKeys.Keys);
+            foreach (Key key in temp)
+            {
+                if (m_pressedKeys[key].Count == 0)
+                    m_pressedKeys.Remove(key);
+            }
         }
 
         // Handle all the updates on the key inputs between frames, this should
@@ -112,66 +175,96 @@ namespace GLXEngine
         {
             RetrieveInput();
 
-            foreach (Dictionary<Type, InputEvent> events in m_events.Values)
-                if (events.ContainsKey(typeof(InputAxis))) ((InputAxis)events[typeof(InputAxis)]).m_value = 0;
+            #region Reset Axes
+            foreach (Dictionary<Type, InputEventReference> events in m_events.Values)
+                if (events.ContainsKey(typeof(InputAxis))) ((InputAxis)events[typeof(InputAxis)].Object).m_value = 0;
+            #endregion
 
-            foreach (Key keyType in m_pressedKeys)
+            #region Handle Press Events
+            foreach (KeyValuePair<Key, List<ControllerID>> keyData in m_pressedKeys)
             {
-                if (m_actionsMap.ContainsKey(keyType))
-                    InvokeInputActions(keyType, true);
+                foreach (ControllerID controllerID in keyData.Value)
+                {
+                    if (m_actionsMap.ContainsKey(keyData.Key))
+                        InvokeInputActions(keyData.Key, true, controllerID);
 
-                if (m_axisMap.ContainsKey(keyType))
-                    UpdateAxesForKey(keyType);
+                    if (m_axisMap.ContainsKey(keyData.Key))
+                        UpdateAxesForKey(keyData.Key, controllerID);
 
-                foreach (Dictionary<Type, InputEvent> events in m_events.Values)
-                    if (events.ContainsKey(typeof(InputButton))) ((InputButton)events[typeof(InputButton)]).m_delegate?.Invoke(keyType, true);
+                    foreach (Dictionary<Type, InputEventReference> events in m_events.Values)
+                        if (events.ContainsKey(typeof(InputButton))) ((InputButton)events[typeof(InputButton)].Object).m_delegate?.Invoke(keyData.Key, true, controllerID);
+                }
             }
+            #endregion
 
-            foreach (Key keyType in m_releasedKeys)
+            #region Handle Release Events
+            foreach (KeyValuePair<Key, List<ControllerID>> keyData in m_releasedKeys)
             {
-                if (m_actionsMap.ContainsKey(keyType))
-                    InvokeInputActions(keyType, false);
+                foreach (ControllerID controllerID in keyData.Value)
+                {
+                    if (m_actionsMap.ContainsKey(keyData.Key))
+                        InvokeInputActions(keyData.Key, false, controllerID);
 
-                foreach (Dictionary<Type, InputEvent> events in m_events.Values)
-                    if (events.ContainsKey(typeof(InputButton))) ((InputButton)events[typeof(InputButton)]).m_delegate?.Invoke(keyType, true);
+                    foreach (Dictionary<Type, InputEventReference> events in m_events.Values)
+                        if (events.ContainsKey(typeof(InputButton))) ((InputButton)events[typeof(InputButton)].Object).m_delegate?.Invoke(keyData.Key, true, controllerID);
+                }
             }
+            #endregion
 
+            #region Invoke Axis Events
             foreach (KeyValuePair<Key, Dictionary<InputAxis, float>> keyMap in m_axisMap)
             {
-                foreach (InputAxis axis in keyMap.Value.Keys)
-                { axis.m_delegate?.Invoke(axis.m_value); }
+                if (m_pressedKeys.ContainsKey(keyMap.Key))
+                    foreach (InputAxis axis in keyMap.Value.Keys)
+                    {
+                        axis.m_delegate?.Invoke(axis.m_value, m_pressedKeys[keyMap.Key]);
+                    }
+                else
+                    foreach (InputAxis axis in keyMap.Value.Keys)
+                    {
+                        axis.m_delegate?.Invoke(axis.m_value, new List<ControllerID> { -1 });
+                    }
             }
+            #endregion
 
             //Console.Clear();
-            for (int i = 0; i < m_pressedKeys.Count; i++)
+            foreach (KeyValuePair<Key, List<ControllerID>> keyData in m_pressedKeys)
             {
-                Console.WriteLine(m_pressedKeys[i]);
+                String controllerIds = "";
+                foreach (ControllerID controllerID in keyData.Value)
+                    controllerIds += " " + controllerID;
+                Console.WriteLine(keyData.Key + controllerIds);
             }
 
         }
 
         // Invoke all the function calls for given key.
-        private void InvokeInputActions(Key a_key, bool a_pressed)
+        private void InvokeInputActions(Key a_key, bool a_pressed, ControllerID a_controllerID)
         {
             if (m_actionsMap.ContainsKey(a_key))
             {
                 List<InputAction> inputActions = m_actionsMap[a_key];
                 foreach (InputAction action in inputActions)
                 {
-                    action.m_delegate?.Invoke(a_pressed);
+                    action.m_delegate?.Invoke(a_pressed, a_controllerID);
                 }
             }
         }
 
         // Update all axes bound to the given key.
-        private void UpdateAxesForKey(Key a_key)
+        private void UpdateAxesForKey(Key a_key, ControllerID a_controllerID)
         {
             if (m_axisMap.ContainsKey(a_key))
             {
                 Dictionary<InputAxis, float> axesInputs = m_axisMap[a_key];
                 foreach (KeyValuePair<InputAxis, float> axisInput in axesInputs)
                 {
-                    axisInput.Key.m_value += axisInput.Value;
+                    if (a_controllerID != -1)
+                    {
+                        axisInput.Key.m_value += axisInput.Value * m_controllers[a_controllerID].GetAnalog(a_key);
+                    }
+                    else
+                        axisInput.Key.m_value += axisInput.Value;
                 }
             }
         }
@@ -179,7 +272,7 @@ namespace GLXEngine
         // Public function for creating a new event.
         public void CreateEvent(String a_name)
         {
-            m_events.Add(a_name, new Dictionary<Type, InputEvent>());
+            m_events.Add(a_name, new Dictionary<Type, InputEventReference>());
         }
 
         // Public function for mapping a premade event to an input for an input action.
@@ -189,11 +282,11 @@ namespace GLXEngine
             {
                 InputAction action;
                 if (m_events[a_name].ContainsKey(typeof(InputAction)))
-                    action = (InputAction)m_events[a_name][typeof(InputAction)];
+                    action = (InputAction)m_events[a_name][typeof(InputAction)].Object;
                 else
                 {
                     action = new InputAction();
-                    m_events[a_name].Add(typeof(InputAction), action);
+                    m_events[a_name].Add(typeof(InputAction), new InputEventReference(action));
                 }
 
                 // Check if the key has been mapped to any action events before or whether it needs to be added first.
@@ -226,11 +319,11 @@ namespace GLXEngine
             {
                 InputAxis axis;
                 if (m_events[a_name].ContainsKey(typeof(InputAxis)))
-                    axis = (InputAxis)m_events[a_name][typeof(InputAxis)];
+                    axis = (InputAxis)m_events[a_name][typeof(InputAxis)].Object;
                 else
                 {
                     axis = new InputAxis();
-                    m_events[a_name].Add(typeof(InputAxis), axis);
+                    m_events[a_name].Add(typeof(InputAxis), new InputEventReference(axis));
                 }
 
                 // Check if the key has been mapped to any axis events before or whether it needs to be added first.
@@ -250,7 +343,7 @@ namespace GLXEngine
                         m_axisStorage[a_name].Add(a_key, a_value);
                 }
                 else
-                    m_axisStorage.Add(a_name, new Dictionary<Key, float> { { a_key, a_value} });
+                    m_axisStorage.Add(a_name, new Dictionary<Key, float> { { a_key, a_value } });
             }
             else
             {
@@ -265,7 +358,7 @@ namespace GLXEngine
             {
                 if (m_events[a_name].ContainsKey(typeof(InputAction)))
                 {
-                    InputAction action = (InputAction)m_events[a_name][typeof(InputAction)];
+                    InputAction action = (InputAction)m_events[a_name][typeof(InputAction)].Object;
                     if (action.m_delegate == null)
                         action.m_delegate = a_function;
                     else
@@ -287,7 +380,7 @@ namespace GLXEngine
             {
                 if (m_events[a_name].ContainsKey(typeof(InputButton)))
                 {
-                    InputButton buttonEvent = (InputButton)m_events[a_name][typeof(InputButton)];
+                    InputButton buttonEvent = (InputButton)m_events[a_name][typeof(InputButton)].Object;
                     if (buttonEvent.m_delegate == null)
                         buttonEvent.m_delegate = a_function;
                     else
@@ -309,7 +402,7 @@ namespace GLXEngine
             {
                 if (m_events[a_name].ContainsKey(typeof(InputAxis)))
                 {
-                    InputAxis axis = (InputAxis)m_events[a_name][typeof(InputAxis)];
+                    InputAxis axis = (InputAxis)m_events[a_name][typeof(InputAxis)].Object;
                     if (axis.m_delegate == null)
                         axis.m_delegate = a_function;
                     else
@@ -352,9 +445,9 @@ namespace GLXEngine
 
         public void ScanObject(GameObject a_object)
         {
-            foreach (KeyValuePair<String, Dictionary<Type, InputEvent>> eventName in m_events)
+            foreach (KeyValuePair<String, Dictionary<Type, InputEventReference>> eventName in m_events)
             {
-                MethodInfo eventMethod = a_object.GetType().GetMethod(eventName.Key, new Type[] { typeof(bool) });
+                MethodInfo eventMethod = a_object.GetType().GetMethod(eventName.Key, new Type[] { typeof(bool), typeof(ControllerID) });
                 if (eventMethod != null)
                 {
                     if (eventMethod.ReturnType == typeof(void))
@@ -365,7 +458,7 @@ namespace GLXEngine
                     }
                 }
 
-                eventMethod = a_object.GetType().GetMethod(eventName.Key, new Type[] { typeof(float) });
+                eventMethod = a_object.GetType().GetMethod(eventName.Key, new Type[] { typeof(float), typeof(List<ControllerID>) });
                 if (eventMethod != null)
                 {
                     if (eventMethod.ReturnType == typeof(void))
@@ -376,7 +469,7 @@ namespace GLXEngine
                     }
                 }
 
-                eventMethod = a_object.GetType().GetMethod(eventName.Key, new Type[] { typeof(Key), typeof(bool) });
+                eventMethod = a_object.GetType().GetMethod(eventName.Key, new Type[] { typeof(Key), typeof(bool), typeof(ControllerID) });
                 if (eventMethod != null)
                 {
                     if (eventMethod.ReturnType == typeof(void))
@@ -389,26 +482,37 @@ namespace GLXEngine
             }
         }
 
+        public void Destroy()
+        {
+            foreach (ControllerID controllerID in m_controllers.Keys)
+            {
+                m_controllers[controllerID].Destroy();
+            }
+        }
+
         public string GetDiagnostics()
         {
             string output = "";
             int actions = 0, axes = 0, buttonEvents = 0;
             int delegateCount = 0;
-            foreach (Dictionary<Type, InputEvent> eventType in m_events.Values)
+            foreach (Dictionary<Type, InputEventReference> eventType in m_events.Values)
             {
                 if (eventType.ContainsKey(typeof(InputAction)))
                 {
-                    delegateCount += eventType[typeof(InputAction)].m_delegate == null ? 0 : eventType[typeof(InputAction)].m_delegate.GetInvocationList().Length;
+                    InputAction inputAction = eventType[typeof(InputAction)].Object as InputAction;
+                    delegateCount += inputAction.m_delegate == null ? 0 : inputAction.m_delegate.GetInvocationList().Length;
                     actions++;
                 }
                 if (eventType.ContainsKey(typeof(InputAxis)))
                 {
-                    delegateCount += eventType[typeof(InputAxis)].m_delegate == null ? 0 : eventType[typeof(InputAxis)].m_delegate.GetInvocationList().Length;
+                    InputAxis inputAxis = eventType[typeof(InputAxis)].Object as InputAxis;
+                    delegateCount += inputAxis.m_delegate == null ? 0 : inputAxis.m_delegate.GetInvocationList().Length;
                     axes++;
                 }
                 if (eventType.ContainsKey(typeof(InputButton)))
                 {
-                    delegateCount += eventType[typeof(InputButton)].m_delegate == null ? 0 : eventType[typeof(InputButton)].m_delegate.GetInvocationList().Length;
+                    InputButton inputButton = eventType[typeof(InputButton)].Object as InputButton;
+                    delegateCount += inputButton.m_delegate == null ? 0 : inputButton.m_delegate.GetInvocationList().Length;
                     buttonEvents++;
                 }
             }

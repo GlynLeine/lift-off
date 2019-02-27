@@ -107,32 +107,66 @@ namespace GameProject
                 Vector2 right = new Vector2(screenEdge.x + (10f * direction.x) - (10f * direction.y),
                                             screenEdge.y + (10f * direction.x) + (10f * direction.y));
 
+                float playerDistance = Vector2.Distance(screenPosition, m_player.screenPosition);
+
                 m_canvas.Stroke(0);
                 m_canvas.StrokeWeight(1);
-                m_canvas.Fill(255, 0, 0);
+                if (HasChild(m_gun))
+                    m_canvas.Fill(255, 0, 0);
+                else
+                    m_canvas.Fill(255, 255, 0);
                 m_canvas.Triangle(tip.x, tip.y, left.x, left.y, right.x, right.y);
 
-                float percentage = Mathf.Clamp(m_hp.current / m_hp.max, 0f, 1f);
-                Vector2i color = new Vector2i(Mathf.Round(255 * (1 - percentage)), Mathf.Round(255 * percentage)).SetMagnitude(255);
+                string distanceString = (Mathf.Round(playerDistance / 10f)).ToString();
+
+                m_canvas.TextSize(12);
+
+                Vector2 textDim = new Vector2(m_canvas.TextWidth(distanceString) / 2,
+                                              m_canvas.TextHeight(distanceString) / 2);
+                Vector2 textPos = new Vector2(tip.x - ((35f + textDim.x) * direction.y),
+                                              tip.y + ((35f + textDim.y) * direction.x));
+
+                m_canvas.Fill(255);
+                m_canvas.Stroke(0);
+                m_canvas.Rect(textPos.x, textPos.y, textDim.x * 2.5f, textDim.y * 2.5f);
+
+                m_canvas.Fill(0);
+                m_canvas.Text(distanceString, textPos.x, textPos.y);
+
+                if (direction.angle % 90 == 0)
+                {
+                    float percentage = Mathf.Clamp(m_hp.current / m_hp.max, 0f, 1f);
+                    Vector2i color = new Vector2i(Mathf.Round(255 * (1 - percentage)), Mathf.Round(255 * percentage)).SetMagnitude(255);
 
 
-                left.x = screenEdge.x - (m_hp.current / 2 * direction.x) - (m_sprite.height / 2 * direction.y);
-                left.y = screenEdge.y + (m_sprite.height / 2 * direction.x) + (m_hp.current / 2 * direction.y);
+                    left.x = screenEdge.x - (m_hp.current / 2 * direction.x) - (m_sprite.height / 2 * direction.y);
+                    left.y = screenEdge.y + (m_sprite.height / 2 * direction.x) + (m_hp.current / 2 * direction.y);
 
-                right.x = screenEdge.x + (m_hp.current / 2 * direction.x) - (m_sprite.height / 2 * direction.y);
-                right.y = screenEdge.y + (m_sprite.height / 2 * direction.x) - (m_hp.current / 2 * direction.y);
+                    right.x = screenEdge.x + (m_hp.current / 2 * direction.x) - (m_sprite.height / 2 * direction.y);
+                    right.y = screenEdge.y + (m_sprite.height / 2 * direction.x) - (m_hp.current / 2 * direction.y);
 
-                Vector2 bottomLeft = new Vector2(left.x - (5f * direction.y), left.y + (5f * direction.x));
-                Vector2 bottomRight = new Vector2(right.x - (5f * direction.y), right.y + (5f * direction.x));
+                    Vector2 bottomLeft = new Vector2(left.x - (5f * direction.y), left.y + (5f * direction.x));
+                    Vector2 bottomRight = new Vector2(right.x - (5f * direction.y), right.y + (5f * direction.x));
 
-                m_canvas.Fill(color.x, color.y, 0);
-                m_canvas.Quad(left.x, left.y, right.x, right.y, bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y);
+                    m_canvas.Fill(color.x, color.y, 0);
+                    m_canvas.Quad(left.x, left.y, right.x, right.y, bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y);
+                }
 
-                m_maxSpeed = 200;
+
+                Vector2 toScreen = screenEdge - screenPosition;
+                Vector2 playerToEdge = screenEdge - m_player.screenPosition;
+                if (m_velocity.angle <= toScreen.angle + 90 && m_velocity.angle >= toScreen.angle - 90)
+                {
+                    m_maxSpeed = 400;
+                }
+                else
+                {
+                    m_maxSpeed = 50;
+                }
             }
             else
             {
-                m_maxSpeed = 500;
+                m_maxSpeed = 400;
             }
         }
 
@@ -161,11 +195,11 @@ namespace GameProject
                 screenEdge.x = Mathf.Clamp(screenEdge.x, 0, game.width);
                 screenEdge.y = Mathf.Clamp(screenEdge.y, 0, game.height);
 
-                float screenDistance = (screenEdge - m_player.screenPosition).magnitude;
+                float screenDistance = Vector2.Distance(screenEdge, m_player.screenPosition);
 
                 if (HasChild(m_gun))
                 {
-                    Flock(new List<GameObject> { m_player }, screenDistance * 0.65f, 0, screenDistance);
+                    Flock(new List<GameObject> { m_player }, screenDistance * 0.65f, 0, float.MaxValue);
 
                     if (Utils.Random(0, 500) <= 1 && Vector2.Distance(position, m_player.position) < 900)
                     {
@@ -176,7 +210,7 @@ namespace GameProject
                 }
                 else
                 {
-                    Flock(new List<GameObject> { m_player }, screenDistance * 1.1f, 0, screenDistance * 1.2f);
+                    Flock(new List<GameObject> { m_player }, screenDistance * 1.5f, 0, float.MaxValue);
                     rotation = (position - m_player.position).angle;
                 }
             }
@@ -199,16 +233,10 @@ namespace GameProject
                 Vector2 bulletDirection = bullet.m_velocity.normal;
                 Vector2 bulletToMe = (position - bullet.position);
 
-                //m_canvas.Stroke(System.Drawing.Color.White);
-                //m_canvas.Line(bullet.screenPosition.x, bullet.screenPosition.y, bullet.screenPosition.x + bulletToMe.x * 1000, bullet.screenPosition.y + bulletToMe.y * 1000);
-
                 Vector2 strafeDirection = new Vector2(-bulletDirection.y, bulletDirection.x).normal;
                 float theta = Mathf.Abs(strafeDirection.angle - bulletToMe.angle);
                 if (!(theta < 90 || (theta < 360 && theta > 270)))
                     strafeDirection *= -1;
-
-                //m_canvas.Stroke(System.Drawing.Color.FromArgb(0, 0, 255));
-                //m_canvas.Line(screenPosition.x, screenPosition.y, screenPosition.x + strafeDirection.x * 100, screenPosition.y + strafeDirection.y * 100);
 
                 float projectedDistanceX = bulletDirection.Dot(bulletToMe);
                 float projectedDistanceY = strafeDirection.Dot(bullet.position - position);

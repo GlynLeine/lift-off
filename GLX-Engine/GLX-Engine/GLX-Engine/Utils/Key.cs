@@ -101,7 +101,61 @@ namespace GLXEngine
         QUESTION_MARK = 47,
 
         PRESSED = 1,
-        RELEASED = 0
+        RELEASED = 0,
+
+        ANALOG0 = 1000,
+        ANALOG1 = 1001,
+        ANALOG2 = 1002,
+        ANALOG3 = 1003,
+        ANALOG4 = 1004,
+        ANALOG5 = 1005,
+        ANALOG6 = 1006,
+        ANALOG7 = 1007,
+        ANALOG8 = 1008,
+        ANALOG9 = 1009,
+
+        JOYSTICK_LEFT_X = 1000,
+        JOYSTICK_LEFT_Y = 1001,
+        JOYSTICK_RIGHT_X = 1002,
+        JOYSTICK_RIGHT_Y = 1003,
+        BUMPER_L1 = 1004,
+        BUMPER_R1 = 1005,
+
+        DIGITAL0 = 1010,
+        DIGITAL1 = 1011,
+        DIGITAL2 = 1012,
+        DIGITAL3 = 1013,
+        DIGITAL4 = 1014,
+        DIGITAL5 = 1015,
+        DIGITAL6 = 1016,
+        DIGITAL7 = 1017,
+        DIGITAL8 = 1018,
+        DIGITAL9 = 1019,
+        DIGITAL10 = 1020,
+        DIGITAL11 = 1021,
+        DIGITAL12 = 1022,
+        DIGITAL13 = 1023,
+        DIGITAL14 = 1024,
+        DIGITAL15 = 1025,
+        DIGITAL16 = 1026,
+        DIGITAL17 = 1027,
+        DIGITAL18 = 1028,
+        DIGITAL19 = 1029,
+
+        GAMEPAD_L_UP = 1010,
+        GAMEPAD_L_RIGHT = 1011,
+        GAMEPAD_L_DOWN = 1012,
+        GAMEPAD_L_LEFT = 1013,
+
+        GAMEPAD_R_UP = 1014,
+        GAMEPAD_R_RIGHT = 1015,
+        GAMEPAD_R_DOWN = 1016,
+        GAMEPAD_R_LEFT = 1017,
+
+        BUMPER_L2 = 1018,
+        BUMPER_R2 = 1019,
+
+        GAMEPAD_MENU = 1020
     };
 }
 

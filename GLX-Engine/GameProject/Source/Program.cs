@@ -35,6 +35,7 @@ namespace GameProject
             m_keyInputHandler.MapEventToKeyAction("PrintDiagnostics", Key.TILDE);
 
             m_keyInputHandler.MapEventToKeyAction("Shoot", Key.SPACE);
+            m_keyInputHandler.MapEventToKeyAction("Shoot", Key.DIGITAL0);
             m_keyInputHandler.MapEventToKeyAction("Reload", Key.R);
             m_keyInputHandler.MapEventToKeyAction("SwitchWeapon", Key.E);
             m_keyInputHandler.MapEventToKeyAction("Dodge", Key.NUMPAD_0);
@@ -42,6 +43,7 @@ namespace GameProject
             m_keyInputHandler.MapEventToKeyAxis("MoveForward", Key.W, 1f);
             m_keyInputHandler.MapEventToKeyAxis("MoveForward", Key.S, -1f);
 
+            m_keyInputHandler.MapEventToKeyAxis("MoveRight", Key.JOYSTICK_LEFT_X, 1f);
             m_keyInputHandler.MapEventToKeyAxis("MoveRight", Key.D, 1f);
             m_keyInputHandler.MapEventToKeyAxis("MoveRight", Key.A, -1f);
 
@@ -79,7 +81,6 @@ namespace GameProject
 
         void Update(float a_dt)
         {
-
         }
 
         static void Main()                          // Main() is the first method that's called when the program is run

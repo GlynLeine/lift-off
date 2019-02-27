@@ -91,6 +91,7 @@ namespace GLXEngine
 
         protected override void OnDestroy()
         {
+            m_keyInputHandler.Destroy();
             base.OnDestroy();
         }
 

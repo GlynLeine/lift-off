@@ -52,43 +52,43 @@ namespace GameProject
             return new BoxCollider(m_sprite);
         }
 
-        public void MoveForward(float a_value)
+        public void MoveForward(float a_value, List<int> a_controllerID)
         {
             if (m_movementForce.sqrMagnitude > 0) m_movementForce.Normalize();
             m_movementForce.y -= a_value;
             if (m_movementForce.sqrMagnitude > 0) m_movementForce.magnitude = m_speed;
         }
 
-        public void MoveRight(float a_value)
+        public void MoveRight(float a_value, List<int> a_controllerID)
         {
             if (m_movementForce.sqrMagnitude > 0) m_movementForce.Normalize();
             m_movementForce.x += a_value;
             if (m_movementForce.sqrMagnitude > 0) m_movementForce.magnitude = m_speed;
         }
 
-        public void FaceForward(float a_value)
+        public void FaceForward(float a_value, List<int> a_controllerID)
         {
             m_direction.y -= a_value;
         }
 
-        public void FaceRight(float a_value)
+        public void FaceRight(float a_value, List<int> a_controllerID)
         {
             m_direction.x += a_value;
         }
 
-        public void Shoot(bool a_pressed)
+        public void Shoot(bool a_pressed, int a_controllerID)
         {
             if (a_pressed)
                 m_guns[m_currentGun].Shoot();
         }
 
-        public void Reload(bool a_pressed)
+        public void Reload(bool a_pressed, int a_controllerID)
         {
             if (!a_pressed && !m_guns[m_currentGun].IsReloading)
                 m_guns[m_currentGun].Reload();
         }
 
-        public void Dodge(bool a_pressed)
+        public void Dodge(bool a_pressed, int a_controllerID)
         {
             if (!a_pressed)
             {
@@ -97,7 +97,7 @@ namespace GameProject
             }
         }
 
-        public void SwitchWeapon(bool a_pressed)
+        public void SwitchWeapon(bool a_pressed, int a_controllerID)
         {
             if (!a_pressed)
             {
@@ -111,14 +111,14 @@ namespace GameProject
 
         public void OnCollision(GameObject other)
         {
-            if (other is Bullet)
-            {
-                if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
-                {
-                    other.Destroy();
-                    m_hp.current -= 5f;
-                }
-            }
+            //if (other is Bullet)
+            //{
+            //    if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
+            //    {
+            //        other.Destroy();
+            //        m_hp.current -= 5f;
+            //    }
+            //}
         }
 
         void Update(float a_dt)
