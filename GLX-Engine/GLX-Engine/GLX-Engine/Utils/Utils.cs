@@ -54,7 +54,6 @@ namespace GLXEngine
 			for (int i = 0; i < list.Length; i++) {
 				if (list[i] != null) Console.Write(list[i].ToString() + " "); else Console.Write("null ");
 			}
-			Console.WriteLine();
 		}
 		
 		//------------------------------------------------------------------------------------------------------------------------

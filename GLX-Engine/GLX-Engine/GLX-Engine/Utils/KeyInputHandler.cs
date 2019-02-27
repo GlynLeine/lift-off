@@ -98,12 +98,7 @@ namespace GLXEngine
             m_actionsMap = new Dictionary<Key, List<string>>();
             m_axisMap = new Dictionary<Key, Dictionary<string, float>>();
             m_events = new Dictionary<string, Dictionary<Type, InputEventReference>>();
-
-            foreach (string portName in SerialPort.GetPortNames())
-            {
-                GameController gameController = new GameController(true);
-                m_controllers.Add(gameController.ID, gameController);
-            }
+            m_controllers = a_source.m_controllers;
 
             foreach (string eventName in a_source.m_events.Keys)
             {
@@ -149,14 +144,34 @@ namespace GLXEngine
             foreach (ControllerID controllerID in m_controllers.Keys)
             {
                 GameController controller = m_controllers[controllerID];
-                controller.Search();
+                if (!controller.connected)
+                    controller.Search();
 
                 if (controller.connected)
                 {
                     foreach (Key key in controller.analogs)
                     {
-                        if (!m_pressedKeys.ContainsKey(key)) m_pressedKeys.Add(key, new List<ControllerID> { controller.ID });
-                        else if (!m_pressedKeys[key].Contains(controller.ID)) m_pressedKeys[key].Add(controller.ID);
+                        if (controller.GetAnalog(key) != 0)
+                        {
+                            if (!m_pressedKeys.ContainsKey(key)) m_pressedKeys.Add(key, new List<ControllerID> { controller.ID });
+                            else if (!m_pressedKeys[key].Contains(controller.ID)) m_pressedKeys[key].Add(controller.ID);
+                        }
+                        else
+                        {
+                            if (m_pressedKeys.ContainsKey(key))
+                            {
+                                if (m_pressedKeys[key].Contains(controller.ID))
+                                    m_pressedKeys[key].Remove(controller.ID);
+
+                                if (m_releasedKeys.ContainsKey(key))
+                                {
+                                    if (!m_releasedKeys[key].Contains(controller.ID))
+                                        m_releasedKeys[key].Add(controller.ID);
+                                }
+                                else
+                                    m_releasedKeys.Add(key, new List<ControllerID> { controller.ID });
+                            }
+                        }
                     }
 
                     foreach (Key key in controller.digitals)
@@ -169,7 +184,18 @@ namespace GLXEngine
                         else
                         {
                             if (m_pressedKeys.ContainsKey(key))
-                            { if (m_pressedKeys[key].Contains(controller.ID)) m_pressedKeys[key].Remove(controller.ID); }
+                            {
+                                if (m_pressedKeys[key].Contains(controller.ID))
+                                    m_pressedKeys[key].Remove(controller.ID);
+
+                                if (m_releasedKeys.ContainsKey(key))
+                                {
+                                    if (!m_releasedKeys[key].Contains(controller.ID))
+                                        m_releasedKeys[key].Add(controller.ID);
+                                }
+                                else
+                                    m_releasedKeys.Add(key, new List<ControllerID> { controller.ID });
+                            }
                         }
                     }
                 }
@@ -243,14 +269,14 @@ namespace GLXEngine
             }
             #endregion
 
-            //Console.Clear();
-            //foreach (KeyValuePair<Key, List<ControllerID>> keyData in m_pressedKeys)
-            //{
-            //    string controllerIds = "";
-            //    foreach (ControllerID controllerID in keyData.Value)
-            //        controllerIds += " " + controllerID;
-            //    Console.WriteLine(keyData.Key + controllerIds);
-            //}
+            Console.Clear();
+            foreach (KeyValuePair<Key, List<ControllerID>> keyData in m_pressedKeys)
+            {
+                string controllerIds = "";
+                foreach (ControllerID controllerID in keyData.Value)
+                    controllerIds += " " + controllerID;
+                Console.WriteLine(keyData.Key + controllerIds);
+            }
 
         }
 

@@ -6,7 +6,7 @@ namespace GameProject
 {
     class Bullet : GameObject
     {
-        Sprite m_sprite = new Sprite("Textures/verticalline.png");
+        Sprite m_sprite = new Sprite("Textures/bullet.png");
 
         public GameObject m_owner;
         public GameObject m_player;

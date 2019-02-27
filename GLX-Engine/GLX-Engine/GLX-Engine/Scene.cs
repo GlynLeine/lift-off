@@ -20,8 +20,8 @@ namespace GLXEngine
 
         public Scene m_masterScene;
 
-        public bool m_active = false;
-        public float m_timeActive = 0f;
+        public bool m_active;
+        public float m_timeActive;
 
         /// <summary>
         /// Step delegate defines the signature of a method used for step callbacks, see OnBeforeStep, OnAfterStep.
@@ -52,6 +52,9 @@ namespace GLXEngine
 
         public virtual void Setup(Scene a_masterScene)
         {
+            m_active = false;
+            m_timeActive = 0f;
+
             m_masterScene = a_masterScene;
             m_updateManager = new UpdateManager();
             m_subScenes = new List<Scene>();
@@ -107,14 +110,20 @@ namespace GLXEngine
 
                 if (OnBeforeStep != null)
                     OnBeforeStep();
+
                 m_keyInputHandler.Step();
+
                 m_subScenes.ForEach(scene => scene.Step());
+
                 m_subScenes.RemoveAll(scene => { return m_garbageScenes.Contains(scene); });
                 m_garbageScenes.Clear();
+
                 m_subScenes.AddRange(m_newScenes);
                 m_newScenes.Clear();
+
                 m_updateManager.Step();
                 m_collisionManager.Step();
+
                 if (OnAfterStep != null)
                     OnAfterStep();
 

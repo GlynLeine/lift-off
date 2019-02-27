@@ -59,11 +59,6 @@ public class ArduinoInterface
 
         if (a_search)
             Search(a_persistent);
-
-        m_analogs.Add(1f);
-        m_digitals.Add(true);
-        m_found = true;
-        m_closed = false;
     }
 
     public bool Search(bool a_persistent = false)
@@ -296,13 +291,13 @@ public class ArduinoInterface
                     m_closed = true;
                 return false;
             }
-        else
+        else if (m_found)
         {
             Console.WriteLine("Port is closed.");
-            if (m_found)
-                m_closed = true;
+            m_closed = true;
             return false;
         }
+        return false;
     }
 
     protected bool GetData()

@@ -18,10 +18,13 @@ namespace GameProject
 
         Overworld overworld;
 
+        public int score = 0;
+
         public Program() : base(1280, 720, false)        // Create a window that's 800x600 and NOT fullscreen
         {
             GLContext.clearColor = Color.FromArgb(255, 128, 128, 128);
 
+            #region Set Input
             m_keyInputHandler.CreateEvent("MoveForward");
             m_keyInputHandler.CreateEvent("MoveRight");
             m_keyInputHandler.CreateEvent("FaceRight");
@@ -36,11 +39,15 @@ namespace GameProject
             m_keyInputHandler.MapEventToKeyAction("PrintDiagnostics", Key.TILDE);
 
             m_keyInputHandler.MapEventToKeyAction("Shoot", Key.SPACE);
-            m_keyInputHandler.MapEventToKeyAction("Shoot", Key.DIGITAL0);
+            m_keyInputHandler.MapEventToKeyAction("Shoot", Key.DIGITAL2);
+            m_keyInputHandler.MapEventToKeyAction("Reload", Key.DIGITAL1);
             m_keyInputHandler.MapEventToKeyAction("Reload", Key.R);
+            m_keyInputHandler.MapEventToKeyAction("SwitchWeapon", Key.DIGITAL4);
             m_keyInputHandler.MapEventToKeyAction("SwitchWeapon", Key.E);
+            m_keyInputHandler.MapEventToKeyAction("Dodge", Key.DIGITAL0);
             m_keyInputHandler.MapEventToKeyAction("Dodge", Key.NUMPAD_0);
 
+            m_keyInputHandler.MapEventToKeyAxis("MoveForward", Key.JOYSTICK_LEFT_Y, 1f);
             m_keyInputHandler.MapEventToKeyAxis("MoveForward", Key.W, 1f);
             m_keyInputHandler.MapEventToKeyAxis("MoveForward", Key.S, -1f);
 
@@ -48,13 +55,16 @@ namespace GameProject
             m_keyInputHandler.MapEventToKeyAxis("MoveRight", Key.D, 1f);
             m_keyInputHandler.MapEventToKeyAxis("MoveRight", Key.A, -1f);
 
+            m_keyInputHandler.MapEventToKeyAxis("FaceRight", Key.JOYSTICK_RIGHT_X, 1f);
             m_keyInputHandler.MapEventToKeyAxis("FaceRight", Key.RIGHT, 1f);
             m_keyInputHandler.MapEventToKeyAxis("FaceRight", Key.LEFT, -1f);
 
+            m_keyInputHandler.MapEventToKeyAxis("FaceForward", Key.JOYSTICK_RIGHT_Y, 1f);
             m_keyInputHandler.MapEventToKeyAxis("FaceForward", Key.UP, 1f);
             m_keyInputHandler.MapEventToKeyAxis("FaceForward", Key.DOWN, -1f);
 
             m_keyInputHandler.ScanObject(this);
+            #endregion
 
             overworld = new Overworld();
             overworld.m_active = true;
@@ -64,6 +74,7 @@ namespace GameProject
 
         public override void Restart()
         {
+            score = 0;
             overworld.Restart();
         }
 

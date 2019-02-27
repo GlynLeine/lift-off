@@ -73,6 +73,9 @@ namespace GLXEngine
         {
             for (int analogID = 0; analogID < m_analogs.Count; analogID++)
             {
+                if (m_analogMap.ContainsValue(analogID))
+                    continue;
+
                 Key analogInputID;
                 if (Enum.TryParse("ANALOG" + analogID, out analogInputID))
                     m_analogMap.Add(analogInputID, analogID);
@@ -80,6 +83,9 @@ namespace GLXEngine
 
             for (int digitalID = 0; digitalID < m_digitals.Count; digitalID++)
             {
+                if (m_digitalMap.ContainsValue(digitalID))
+                    continue;
+
                 Key digitalInputID;
                 if (Enum.TryParse("DIGITAL" + digitalID, out digitalInputID))
                     m_digitalMap.Add(digitalInputID, digitalID);

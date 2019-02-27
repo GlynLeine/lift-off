@@ -17,8 +17,6 @@ namespace GameProject
 
         readonly uint enemyCount = (uint)((Game.main.width * Game.main.height) / 48000f);
 
-        public int score = 0;
-
         Timer frameRateCounter;
         float avgFrameTime = 1;
         float avgFrameRate = 0;
@@ -110,7 +108,7 @@ namespace GameProject
             Vector2 prefixDim = new Vector2(UI.TextWidth(scorePrefix), UI.TextHeight(scorePrefix));
             UI.Text(scorePrefix, prefixDim.x / 2, prefixDim.y / 2);
 
-            string scoreText = score.ToString();
+            string scoreText = (game as Program).score.ToString();
             UI.Text(scoreText, prefixDim.x + UI.TextWidth(scoreText) / 2 - 10, prefixDim.y / 2);
 
             UI.Fill(0);

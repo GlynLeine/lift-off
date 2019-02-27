@@ -69,7 +69,7 @@ namespace GameProject
         {
             if (m_hp.current <= 0)
             {
-                ((Overworld)m_scene).score += 1;
+                (game as Program).score += 1;
                 Destroy();
             }
 

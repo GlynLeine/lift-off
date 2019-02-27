@@ -54,6 +54,9 @@ namespace GameProject
 
         public void MoveForward(float a_value, List<int> a_controllerID)
         {
+            if (m_hp.current <= 0)
+                return;
+
             if (m_movementForce.sqrMagnitude > 0) m_movementForce.Normalize();
             m_movementForce.y -= a_value;
             if (m_movementForce.sqrMagnitude > 0) m_movementForce.magnitude = m_speed;
@@ -61,6 +64,9 @@ namespace GameProject
 
         public void MoveRight(float a_value, List<int> a_controllerIDs)
         {
+            if (m_hp.current <= 0)
+                return;
+
             if (m_movementForce.sqrMagnitude > 0) m_movementForce.Normalize();
             m_movementForce.x += a_value;
             if (m_movementForce.sqrMagnitude > 0) m_movementForce.magnitude = m_speed;
@@ -68,22 +74,34 @@ namespace GameProject
 
         public void FaceForward(float a_value, List<int> a_controllerID)
         {
+            if (m_hp.current <= 0)
+                return;
+
             m_direction.y -= a_value;
         }
 
         public void FaceRight(float a_value, List<int> a_controllerID)
         {
+            if (m_hp.current <= 0)
+                return;
+
             m_direction.x += a_value;
         }
 
         public void Shoot(bool a_pressed, int a_controllerID)
         {
+            if (m_hp.current <= 0)
+                return;
+
             if (a_pressed)
                 m_guns[m_currentGun].Shoot();
         }
 
         public void Reload(bool a_pressed, int a_controllerID)
         {
+            if (m_hp.current <= 0)
+                return;
+
             if (!a_pressed && !m_guns[m_currentGun].IsReloading)
                 m_guns[m_currentGun].Reload();
         }
@@ -99,6 +117,9 @@ namespace GameProject
 
         public void SwitchWeapon(bool a_pressed, int a_controllerID)
         {
+            if (m_hp.current <= 0)
+                return;
+
             if (!a_pressed)
             {
                 m_guns[m_currentGun].SetActive(false);
@@ -111,14 +132,17 @@ namespace GameProject
 
         public void OnCollision(GameObject other)
         {
-            if (other is Bullet)
-            {
-                if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
-                {
-                    other.Destroy();
-                    m_hp.current -= 5f;
-                }
-            }
+            //if (m_hp.current <= 0)
+            //    return;
+
+            //if (other is Bullet)
+            //{
+            //    if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
+            //    {
+            //        other.Destroy();
+            //        m_hp.current -= 5f;
+            //    }
+            //}
         }
 
         void Update(float a_dt)
@@ -143,7 +167,9 @@ namespace GameProject
 
             position += m_velocity * a_dt;
             m_dodgeForce *= 0.9f;
-            m_movementForce *= 0;
+
+            if (m_hp.current > 0)
+                m_movementForce *= 0;
 
             m_animTimeBuffer += a_dt;
             if (m_animTimeBuffer >= m_animFrameTime)

@@ -78,7 +78,7 @@ namespace GameProject
                     other.Destroy();
                     if (!m_owner.GetType().Equals(typeof(Player)))
                     {
-                        ((Overworld)m_scene).score += 1;
+                        (game as Program).score += 1;
                         Destroy();
                     }
                 }
