@@ -19,6 +19,7 @@ namespace GLXEngine
         protected Rectangle _renderRange;
 
         public Scene m_masterScene;
+        public GameObject m_player;
 
         public bool m_active;
         public float m_timeActive;

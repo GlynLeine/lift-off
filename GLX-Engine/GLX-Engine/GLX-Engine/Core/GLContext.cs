@@ -31,8 +31,8 @@ namespace GLXEngine.Core
         private Game _owner;
 
         private int _targetFrameRate = 60;
-        private long _lastFrameTime = 0;
-        private long _lastFPSTime = 0;
+        private float _lastFrameTime = 0;
+        private float _lastFPSTime = 0;
         private int _frameCount = 0;
         private int _lastFPS = 0;
         private bool _vsyncEnabled = false;

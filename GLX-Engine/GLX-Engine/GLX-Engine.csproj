@@ -69,6 +69,8 @@
     <Compile Include="GLX-Engine\Canvas.cs" />
     <Compile Include="GLX-Engine\Components.cs" />
     <Compile Include="GLX-Engine\Controller.cs" />
+    <Compile Include="GLX-Engine\Core\Circle.cs" />
+    <Compile Include="GLX-Engine\Core\Shape.cs" />
     <Compile Include="GLX-Engine\ECS\ECS.cs" />
     <Compile Include="GLX-Engine\ECS\ComponentHandle.cs" />
     <Compile Include="GLX-Engine\ECS\EntityManager.cs" />

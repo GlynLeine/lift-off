@@ -152,7 +152,6 @@ namespace GameProject
             else if (other is PickUp)
             {
                 other.Destroy();
-                m_canvas.Text(other.name, 400, 400);
 
                 if (!m_tags.Contains(other.name))
                     m_tags.Add(other.name);

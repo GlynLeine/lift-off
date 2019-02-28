@@ -24,7 +24,7 @@ namespace GLXEngine.Managers
 		public void Step ()
 		{
 			if (_updateDelegates != null)
-				_updateDelegates (Time.deltaTime/1000f);
+				_updateDelegates (Time.deltaTime);
 		}
 
 		//------------------------------------------------------------------------------------------------------------------------

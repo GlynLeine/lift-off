@@ -37,7 +37,7 @@ namespace GameProject
                 },
                 () =>
                 {
-                    avgFrameTime += Time.deltaTime / 1000f;
+                    avgFrameTime += Time.deltaTime;
                     avgFrameTime /= 2f;
                 });
             frameRateCounter.m_timeBuffer = frameRateCounter.m_timeTrigger;
@@ -53,7 +53,7 @@ namespace GameProject
             UI.TextSize(1);
 
             player = new Player(this, UI);
-
+            m_player = player;
             TiledSceneContructor.LoadObjects(this, "Maps/level.tmx");
 
             AddChild(player);
@@ -92,7 +92,7 @@ namespace GameProject
             enemies = new List<GameObject>();
             for (int i = 0; i < enemyCount; i++)
             {
-                Enemy enemy = new Enemy(this, player, ref enemies, UI, 0.6f);
+                Enemy enemy = new Enemy(this, player, ref enemies, UI, 0.3f);
                 enemies.Add(enemy);
                 AddChild(enemy);
                 Vector2 pos = new Vector2(Utils.Random(0, 2) == 0 ? game.RenderRange.left : game.RenderRange.right, Utils.Random(0, 2) == 0 ? game.RenderRange.top : game.RenderRange.bottom);

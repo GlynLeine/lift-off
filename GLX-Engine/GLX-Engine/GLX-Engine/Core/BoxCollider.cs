@@ -73,8 +73,8 @@ namespace GLXEngine.Core
                         extendB = point.y;
                 }
 
-                Vector2 velocityA = m_owner.parent.m_velocity * Time.deltaTime / 1000f;
-                Vector2 velocityB = otherCollider.m_owner.parent.m_velocity * Time.deltaTime / 1000f;
+                Vector2 velocityA = m_owner.parent.m_velocity * Time.deltaTime;
+                Vector2 velocityB = otherCollider.m_owner.parent.m_velocity * Time.deltaTime;
                 float speedAsqr = velocityA.sqrMagnitude;
                 float speedBsqr = velocityB.sqrMagnitude;
 
@@ -134,7 +134,7 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------
         private bool CircleBroadPhase(Vector2[] hullA, Vector2 positionA, Vector2 velocityA, float extendA, Vector2[] hullB, Vector2 positionB, Vector2 velocityB, float extendB)
         {
-            float deltaTime = Time.deltaTime / 1000f;
+            float deltaTime = Time.deltaTime;
             float radiusA = velocityA.magnitude * deltaTime * 0.5f + extendA;
             float radiusB = velocityB.magnitude * deltaTime * 0.5f + extendB;
 

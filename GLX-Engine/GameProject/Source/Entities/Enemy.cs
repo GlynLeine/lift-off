@@ -25,8 +25,11 @@ namespace GameProject
         {
             m_reactionScalar = a_reactionScaler;
 
-            if(m_reactionScalar > 0.5)
+            if(m_reactionScalar > 0.2)
+            {
                 m_sprite = new AnimationSprite("Textures/enemyBlackAnim.png", 6, 1);
+                collider = new BoxCollider(m_sprite);
+            }
 
             m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
             m_sprite.x -= 10;

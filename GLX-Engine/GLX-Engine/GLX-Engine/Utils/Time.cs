@@ -30,7 +30,7 @@ namespace GLXEngine
     {
         public static List<Timer> timers = new List<Timer>();
 
-        public static int previousTime;
+        public static float previousTime;
 
         static Time()
         {
@@ -50,9 +50,9 @@ namespace GLXEngine
         /// <value>
         /// The time.
         /// </value>
-        public static int time
+        public static float time
         {
-            get { return (int)(OpenGL.GL.glfwGetTime() * 1000); }
+            get { return (float)OpenGL.GL.glfwGetTime(); }
         }
 
         /// <summary>
@@ -61,8 +61,8 @@ namespace GLXEngine
         /// <value>
         /// The delta time.
         /// </value>
-        private static int previousFrameTime;
-        public static int deltaTime
+        private static float previousFrameTime;
+        public static float deltaTime
         {
             get
             {
@@ -77,7 +77,7 @@ namespace GLXEngine
 
             foreach(Timer t in timers)
             {
-                t.m_timeBuffer += previousFrameTime/1000f;
+                t.m_timeBuffer += previousFrameTime;
                 if(t.m_timeBuffer >= t.m_timeTrigger)
                 {
                     t.m_timeBuffer -= t.m_timeTrigger;

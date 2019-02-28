@@ -83,14 +83,12 @@ namespace GameProject
             if (!a_pressed)
                 Console.WriteLine(GetDiagnostics());
 
-            Console.WriteLine(1f / (Time.deltaTime / 1000f));
+            Console.WriteLine(1f / Time.deltaTime);
         }
 
         public override void Step()
         {
-            Console.WriteLine("bleh");
             base.Step();
-            Console.WriteLine("blah");
         }
 
         void Update(float a_dt)

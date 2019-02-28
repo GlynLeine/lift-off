@@ -66,7 +66,12 @@ namespace GameProject
                 {
                     AnimationSprite sprite = new AnimationSprite(tileSet.Image.FileName, tileSet.Columns, tileSet.Rows);
                     sprite.SetFrame(tiledObjects[i].GID-1);
-                    gameObject = new Door(a_scene, sprite, (a_scene as Overworld).player, tiledObjects[i].GetIntProperty("ID"));
+                    gameObject = new Door(a_scene, sprite, a_scene.m_player as Player, tiledObjects[i].GetIntProperty("ID"));
+                }
+                else if (objectTypes[i] == "Spawnpoint")
+                {
+                    a_scene.m_player.x = tiledObjects[i].X;
+                    a_scene.m_player.y = tiledObjects[i].Y;
                 }
 
                 if (gameObject == null) continue;
