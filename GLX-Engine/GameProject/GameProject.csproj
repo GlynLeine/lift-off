@@ -87,18 +87,21 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Source\BackgroundTile.cs" />
-    <Compile Include="Source\Bullet.cs" />
-    <Compile Include="Source\Door.cs" />
-    <Compile Include="Source\Enemy.cs" />
-    <Compile Include="Source\Gun.cs" />
-    <Compile Include="Source\PickUp.cs" />
-    <Compile Include="Source\Overworld.cs" />
-    <Compile Include="Source\Player.cs" />
+    <Compile Include="Source\Entities\Guns\ShotGun.cs" />
+    <Compile Include="Source\Entities\Guns\Carbine.cs" />
+    <Compile Include="Source\Entities\Guns\TommyGun.cs" />
+    <Compile Include="Source\WorldObjects\BackgroundTile.cs" />
+    <Compile Include="Source\Entities\Bullet.cs" />
+    <Compile Include="Source\WorldObjects\Door.cs" />
+    <Compile Include="Source\Entities\Enemy.cs" />
+    <Compile Include="Source\Entities\Guns\Gun.cs" />
+    <Compile Include="Source\Entities\PickUp.cs" />
+    <Compile Include="Source\Scenes\Overworld.cs" />
+    <Compile Include="Source\Entities\Player.cs" />
     <Compile Include="Source\Program.cs" />
-    <Compile Include="Source\ScorePage.cs" />
-    <Compile Include="Source\TiledSceneContructor.cs" />
-    <Compile Include="Source\WallTile.cs" />
+    <Compile Include="Source\Scenes\ScorePage.cs" />
+    <Compile Include="Source\Tools\TiledSceneContructor.cs" />
+    <Compile Include="Source\WorldObjects\WallTile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -127,6 +130,7 @@
       <Name>GLX-Engine</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>xcopy /s /v /h /k /y "$(ProjectDir)Resources" "$(TargetDir)"</PreBuildEvent>

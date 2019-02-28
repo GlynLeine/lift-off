@@ -21,6 +21,13 @@ namespace GameProject
             return new BoxCollider(this);
         }
 
+        public void OnCollision(GameObject other, Vector2 a_mtv)
+        {
+            if (other is Bullet)
+            {
+                other.Destroy();
+            }
+        }
 
     }
 }

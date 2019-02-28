@@ -29,7 +29,7 @@ namespace GameProject
             m_sprite.rotation = 50;
             AddChild(m_sprite);
 
-            m_gun = new Gun(a_scene, ReloadStyle.COMPLETE_CLIP, this, a_player, m_canvas);
+            m_gun = new TommyGun(a_scene, this, a_player);
             m_gun.SetActive(true);
             m_gun.y += 10;
             m_gun.x += 20;
@@ -53,10 +53,11 @@ namespace GameProject
         {
             if (other is Bullet)
             {
-                if (((Bullet)other).m_owner.GetType().Equals(typeof(Player)))
+                Bullet bullet = other as Bullet;
+                if (bullet.m_owner.GetType().Equals(typeof(Player)))
                 {
                     other.Destroy();
-                    m_hp.current -= 20f;
+                    m_hp.current -= bullet.m_damage;
                 }
             }
             else if (!HasChild(other) && !(other is PickUp))
@@ -216,7 +217,7 @@ namespace GameProject
 
                     if (Utils.Random(0, 500) <= 1 && Vector2.Distance(position, m_player.position) < 900)
                     {
-                        m_gun.Shoot();
+                        m_gun.Shoot(true);
                     }
 
                     rotation = (m_player.position - position).angle;

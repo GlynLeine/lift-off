@@ -23,7 +23,7 @@ namespace GameProject
 
         public void Update(float a_dt)
         {
-            if (m_player.m_tags.Contains("KEY" + m_ID))
+            if (m_player.m_tags.Contains("Key" + m_ID))
                 Destroy();
         }
     }

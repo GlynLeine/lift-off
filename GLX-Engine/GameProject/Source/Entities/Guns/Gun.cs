@@ -1,4 +1,5 @@
-﻿using GLXEngine.Core;
+﻿using System.Collections.Generic;
+using GLXEngine.Core;
 using GLXEngine;
 
 namespace GameProject
@@ -9,66 +10,78 @@ namespace GameProject
         SHOT_BY_SHOT
     }
 
-    class Gun : GameObject
+    abstract class Gun : BoundsObject
     {
-        float m_shotTimeBuffer = 0;
-        float m_shotTime;
+        protected bool m_automatic = false;
 
-        float m_reloadTime;
-        float m_reloadTimeBuffer;
-        bool m_reloading = false;
-        int m_clipSize = 10;
-        int m_clip;
+        protected float m_shotTimeBuffer = 0;
+        protected float m_shotTime;
 
-        bool m_active = false;
+        protected float m_barrelLength = 0;
+        protected float m_damage = 10;
+        protected float m_bulletsPerShot = 1;
+        protected float m_inaccuracy = 0;
+        protected float m_spread = 0;
 
-        Sound m_reloadSound;
-        Sound m_shotSound;
-        SoundChannel m_reloadSoundChannel;
+        protected float m_reloadTime;
+        protected float m_reloadTimeBuffer;
 
-        GameObject m_owner;
-        GameObject m_player;
-        EasyDraw m_canvas;
+        protected bool m_reloading = false;
+
+        protected int m_clipSize = 10;
+        protected int m_clip;
+
+        protected bool m_active = false;
+
+        protected Sound m_reloadSound;
+        protected Sound m_shotSound;
+        protected SoundChannel m_reloadSoundChannel;
+
+        protected GameObject m_owner;
+        protected GameObject m_player;
 
         protected ReloadStyle m_reloadStyle;
 
-        Sprite m_sprite = new Sprite("Textures/gun.png");
+        protected Sprite m_sprite;
+        protected Texture2D m_bulletTexture;
+        private List<Sprite> m_reloadBar = new List<Sprite>();
 
-        public Gun(Scene a_scene, ReloadStyle a_reloadStyle, GameObject a_owner, GameObject a_player, EasyDraw a_canvas) : base(a_scene)
+        public Gun(Scene a_scene, ReloadStyle a_reloadStyle, GameObject a_owner, GameObject a_player, Sprite a_sprite) : base(a_scene, a_sprite.width, a_sprite.height)
         {
+            visible = false;
+
             m_reloadStyle = a_reloadStyle;
-
-            if (m_reloadStyle == ReloadStyle.COMPLETE_CLIP)
-            {
-                m_reloadTime = 2.1f;
-                m_shotTime = 1f / 10f;
-                m_reloadSound = new Sound("Audio/reload_mag.wav");
-                m_shotSound = new Sound("Audio/gun_shot.wav");
-                m_clipSize = 30;
-            }
-            else
-            {
-                m_reloadTime = 4f;
-                m_shotTime = 1f;
-                m_reloadSound = new Sound("Audio/reload_shell.wav");
-                m_shotSound = new Sound("Audio/shotgun_shot.wav");
-            }
-
-            m_reloadTimeBuffer = m_reloadTime;
-            m_clip = m_clipSize;
 
             m_owner = a_owner;
             m_player = a_player;
-            m_sprite.SetOrigin(m_sprite.width / 2f, m_sprite.height / 2f);
-            AddChild(m_sprite);
 
-            m_canvas = a_canvas;
-            //(collider as BoxCollider).m_canvas = a_canvas;
+            m_sprite = a_sprite;
+            AddChild(m_sprite);
+            m_sprite.SetOrigin(m_sprite.width / 2f, m_sprite.height / 2f);
+
+            SetOrigin(width / 2, height / 2);
+
+            m_barrelLength = width / 2f;
+        }
+
+        protected void Setup()
+        {
+            m_reloadTimeBuffer = m_reloadTime;
+            m_clip = m_clipSize;
+
+            if (m_bulletTexture != null)
+                for (int i = 0; i < m_clipSize; i++)
+                {
+                    Sprite sprite = new Sprite(m_bulletTexture);
+                    sprite.x = i * sprite.width;
+                    sprite.visible = false;
+                    m_reloadBar.Add(sprite);
+                }
         }
 
         protected override Collider createCollider()
         {
-            return null;// new BoxCollider(m_sprite, ref m_canvas, new System.Type[] { GetType() });
+            return new BoxCollider(this, new System.Type[] { GetType() });
         }
 
         public void OnCollision(GameObject other, Vector2 a_mtv)
@@ -114,6 +127,7 @@ namespace GameProject
         public void SetActive(bool a_active)
         {
             m_active = a_active;
+            visible = a_active;
             if (a_active && m_reloading && m_reloadStyle == ReloadStyle.COMPLETE_CLIP)
             {
                 m_clip = 0;
@@ -150,7 +164,6 @@ namespace GameProject
                     }
                 }
             }
-
         }
 
         public void Reload()
@@ -164,32 +177,34 @@ namespace GameProject
             }
         }
 
-        public void Shoot()
+        public virtual void Shoot(bool a_pressed)
         {
+            if (a_pressed && !m_automatic)
+                return;
+
             while (m_shotTimeBuffer >= m_shotTime)
             {
                 m_shotTimeBuffer -= m_shotTime;
                 m_reloadTimeBuffer -= m_reloadTime / m_clipSize;
                 m_clip--;
 
-                if (m_reloadStyle == ReloadStyle.COMPLETE_CLIP)
-                    CreateBullet(2);
-                else
-                    for (int i = -3; i < 6; i++)
-                        CreateBullet(i);
+                for (int i = 0; i < m_bulletsPerShot; i++)
+                    CreateBullet(m_inaccuracy, (i - (m_bulletsPerShot - 1) / 2) * m_spread);
 
                 m_shotSound.Play();
             }
         }
 
-        void CreateBullet(float a_angleOffset = 0f)
+        void CreateBullet(float a_inaccuracy = 0f, float a_angleOffset = 1f)
         {
-            Bullet bullet = new Bullet(m_scene, m_owner, m_player, m_canvas);
+            Bullet bullet = new Bullet(m_scene, m_owner, m_player, m_damage);
             bullet.SetScaleXY(4);
             ((Overworld)m_scene).bullets.Add(bullet);
+
             Vector2 fwd = new Vector2(m_owner.rotation);
-            bullet.position = m_scene.InverseTransformPoint(screenPosition) + fwd * m_sprite.width;
-            bullet.m_velocity = Vector2.RandomFromAngle(m_owner.rotation - a_angleOffset, m_owner.rotation + a_angleOffset).SetMagnitude(1000);
+            bullet.position = m_scene.InverseTransformPoint(screenPosition) + fwd * m_barrelLength;
+
+            bullet.m_velocity = Vector2.RandomFromAngle(m_owner.rotation + a_angleOffset - a_inaccuracy, m_owner.rotation + a_angleOffset + a_inaccuracy).SetMagnitude(1000);
 
             m_scene.AddChild(bullet);
         }

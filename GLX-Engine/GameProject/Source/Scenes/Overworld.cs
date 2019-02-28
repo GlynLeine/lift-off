@@ -73,12 +73,12 @@ namespace GameProject
             pickUp.x = 200;
             AddChild(pickUp);
 
-            pickUp = new PickUp(this, "Textures/gun.png", "KEY0");
+            pickUp = new PickUp(this, "Textures/gun.png", "Key0");
             pickUp.x = 200;
             pickUp.y = 100;
             AddChild(pickUp);
 
-            Door door = new Door(this, new Sprite("Textures/gun.png"), player);
+            Door door = new Door(this, new Sprite("Textures/gun.png"), player, 0);
             door.x = 300;
             AddChild(door);
 

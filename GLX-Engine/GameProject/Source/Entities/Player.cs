@@ -38,7 +38,7 @@ namespace GameProject
             m_sprite.rotation = 50;
             AddChild(m_sprite);
 
-            m_guns = new List<Gun> { new Gun(a_scene, ReloadStyle.COMPLETE_CLIP, this, this, m_canvas), new Gun(a_scene, ReloadStyle.SHOT_BY_SHOT, this, this, m_canvas) };
+            m_guns = new List<Gun> { new TommyGun(a_scene, this, this), new ShotGun(a_scene, this, this), new Carbine(a_scene, this, this) };
             foreach (Gun gun in m_guns)
             {
                 gun.y += 12;
@@ -100,8 +100,7 @@ namespace GameProject
             if (m_hp.current <= 0)
                 return;
 
-            if (a_pressed)
-                m_guns[m_currentGun].Shoot();
+                m_guns[m_currentGun].Shoot(a_pressed);
         }
 
         public void Reload(bool a_pressed, int a_controllerID)

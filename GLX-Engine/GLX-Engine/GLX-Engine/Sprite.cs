@@ -33,6 +33,12 @@ namespace GLXEngine
             initializeFromTexture(new Texture2D(bitmap));
         }
 
+        public Sprite(Texture2D a_texture2D)
+        {
+            name = a_texture2D.filename;
+            initializeFromTexture(a_texture2D);
+        }
+
         public Sprite(int width, int height)
         {
             name = "BMP" + width + "x" + height;
