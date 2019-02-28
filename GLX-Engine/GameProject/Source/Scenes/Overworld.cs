@@ -92,7 +92,7 @@ namespace GameProject
             enemies = new List<GameObject>();
             for (int i = 0; i < enemyCount; i++)
             {
-                Enemy enemy = new Enemy(this, player, ref enemies, UI);
+                Enemy enemy = new Enemy(this, player, ref enemies, UI, 0.6f);
                 enemies.Add(enemy);
                 AddChild(enemy);
                 Vector2 pos = new Vector2(Utils.Random(0, 2) == 0 ? game.RenderRange.left : game.RenderRange.right, Utils.Random(0, 2) == 0 ? game.RenderRange.top : game.RenderRange.bottom);
@@ -116,7 +116,7 @@ namespace GameProject
 
             while (enemies.Count < enemyCount)
             {
-                Enemy enemy = new Enemy(this, player, ref enemies, UI);
+                Enemy enemy = new Enemy(this, player, ref enemies, UI, 0.3f);
                 enemies.Add(enemy);
                 AddChild(enemy);
                 Vector2 pos = new Vector2(Utils.Random(0, 2) == 0 ? game.RenderRange.left - 50 : game.RenderRange.right + 50, Utils.Random(0, 2) == 0 ? game.RenderRange.top - 50 : game.RenderRange.bottom + 50);

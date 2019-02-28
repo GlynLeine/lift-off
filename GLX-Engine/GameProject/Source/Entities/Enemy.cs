@@ -10,19 +10,24 @@ namespace GameProject
 
         float m_animTimeBuffer = 0;
         float m_animFrameTime = 0.15f;
-        AnimationSprite m_sprite = new AnimationSprite("Textures/enemyAnim.png", 5, 1);
+        AnimationSprite m_sprite = new AnimationSprite("Textures/enemyAnim.png", 6, 1);
 
         Hp m_hp;
         EasyDraw m_canvas;
 
         Sound m_crashSound;
 
-        float m_reactionScalar = Utils.Random(0.2f, 0.5f);
+        float m_reactionScalar;
 
         Gun m_gun;
 
-        public Enemy(Scene a_scene, Player a_player, ref List<GameObject> a_enemies, EasyDraw a_canvas) : base(a_scene, ref a_enemies, a_canvas)
+        public Enemy(Scene a_scene, Player a_player, ref List<GameObject> a_enemies, EasyDraw a_canvas, float a_reactionScaler) : base(a_scene, ref a_enemies, a_canvas)
         {
+            m_reactionScalar = a_reactionScaler;
+
+            if(m_reactionScalar > 0.5)
+                m_sprite = new AnimationSprite("Textures/enemyBlackAnim.png", 6, 1);
+
             m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
             m_sprite.x -= 10;
             m_sprite.y -= 12;
