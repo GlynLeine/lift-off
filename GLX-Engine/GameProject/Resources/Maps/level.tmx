@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<<<<<<< HEAD:GLX-Engine/GameProject/Resources/Maps/level.tmx
 <map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-down" width="40" height="100" tilewidth="64" tileheight="64" infinite="0" nextlayerid="6" nextobjectid="16">
- <tileset firstgid="1" source="Maps/TileSheet2.tsx"/>
-=======
-<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-down" width="40" height="100" tilewidth="64" tileheight="64" infinite="0" nextlayerid="6" nextobjectid="17">
- <tileset firstgid="1" source="TileSheet2.tsx"/>
->>>>>>> e11320bb38c4505e07810831e930e0f7505085e4:Design Documents/tiled/level.tmx
+ <tileset firstgid="1" source="C:/Users/Ty Rymer/AppData/Local/Temp/Maps/TileSheet2.tsx"/>
  <layer id="3" width="40" height="100">
   <data encoding="csv">
 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,5,5,5,5,5,5,5,5,5,
