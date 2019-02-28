@@ -44,6 +44,7 @@ namespace GameProject
 
             SetXY(game.width / 2, game.height / 2);
 
+
             UI = new EasyDraw(Game.main.width, Game.main.height);
             UI.autoClear = true;
             UI.SetOrigin(UI.width / 2, UI.height / 2);
@@ -52,35 +53,38 @@ namespace GameProject
             UI.TextSize(1);
 
             player = new Player(this, UI);
+
+            TiledSceneContructor.LoadObjects(this, "Maps/level.tmx");
+
             AddChild(player);
 
-            Sprite wallSprite = new Sprite("Textures/gun.png");
-            WallTile wall = new WallTile(this, wallSprite);
-            wall.rotation = 90;
-            AddChild(wall);
+            //Sprite wallSprite = new Sprite("Textures/gun.png");
+            //WallTile wall = new WallTile(this, wallSprite);
+            //wall.rotation = 90;
+            //AddChild(wall);
 
-            wall = new WallTile(this, new Sprite("Textures/gun.png"));
-            wall.y = wallSprite.width;
-            wall.rotation = 90;
-            AddChild(wall);
+            //wall = new WallTile(this, new Sprite("Textures/gun.png"));
+            //wall.y = wallSprite.width;
+            //wall.rotation = 90;
+            //AddChild(wall);
 
-            wall = new WallTile(this, new Sprite("Textures/gun.png"));
-            wall.y = wallSprite.width*2;
-            wall.rotation = 90;
-            AddChild(wall);
+            //wall = new WallTile(this, new Sprite("Textures/gun.png"));
+            //wall.y = wallSprite.width*2;
+            //wall.rotation = 90;
+            //AddChild(wall);
 
-            PickUp pickUp = new PickUp(this, "Textures/gun.png", "GUN");
-            pickUp.x = 200;
-            AddChild(pickUp);
+            //PickUp pickUp = new PickUp(this, "Textures/gun.png", "GUN");
+            //pickUp.x = 200;
+            //AddChild(pickUp);
 
-            pickUp = new PickUp(this, "Textures/gun.png", "Key0");
-            pickUp.x = 200;
-            pickUp.y = 100;
-            AddChild(pickUp);
+            //pickUp = new PickUp(this, "Textures/gun.png", "Key0");
+            //pickUp.x = 200;
+            //pickUp.y = 100;
+            //AddChild(pickUp);
 
-            Door door = new Door(this, new Sprite("Textures/gun.png"), player, 0);
-            door.x = 300;
-            AddChild(door);
+            //Door door = new Door(this, new Sprite("Textures/gun.png"), player, 0);
+            //door.x = 300;
+            //AddChild(door);
 
 
             bullets = new List<GameObject>();

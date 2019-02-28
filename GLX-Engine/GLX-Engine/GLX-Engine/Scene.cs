@@ -121,6 +121,7 @@ namespace GLXEngine
                 m_subScenes.AddRange(m_newScenes);
                 m_newScenes.Clear();
 
+
                 m_updateManager.Step();
                 m_collisionManager.Step();
 

@@ -269,14 +269,14 @@ namespace GLXEngine
             }
             #endregion
 
-            Console.Clear();
-            foreach (KeyValuePair<Key, List<ControllerID>> keyData in m_pressedKeys)
-            {
-                string controllerIds = "";
-                foreach (ControllerID controllerID in keyData.Value)
-                    controllerIds += " " + controllerID;
-                Console.WriteLine(keyData.Key + controllerIds);
-            }
+            //Console.Clear();
+            //foreach (KeyValuePair<Key, List<ControllerID>> keyData in m_pressedKeys)
+            //{
+            //    string controllerIds = "";
+            //    foreach (ControllerID controllerID in keyData.Value)
+            //        controllerIds += " " + controllerID;
+            //    Console.WriteLine(keyData.Key + controllerIds);
+            //}
 
         }
 

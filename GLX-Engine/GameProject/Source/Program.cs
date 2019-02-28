@@ -88,7 +88,9 @@ namespace GameProject
 
         public override void Step()
         {
+            Console.WriteLine("bleh");
             base.Step();
+            Console.WriteLine("blah");
         }
 
         void Update(float a_dt)
