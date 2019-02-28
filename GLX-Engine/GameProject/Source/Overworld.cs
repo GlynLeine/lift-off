@@ -73,7 +73,7 @@ namespace GameProject
             pickUp.x = 200;
             AddChild(pickUp);
 
-            pickUp = new PickUp(this, "Textures/gun.png", "KEY1");
+            pickUp = new PickUp(this, "Textures/gun.png", "KEY0");
             pickUp.x = 200;
             pickUp.y = 100;
             AddChild(pickUp);
