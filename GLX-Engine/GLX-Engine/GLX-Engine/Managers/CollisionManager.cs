@@ -72,10 +72,7 @@ namespace GLXEngine
 
                             info.m_gameObject.collider.m_minimumTranslationVec = new Vector2();
                         }
-                        //if (info.m_gameObject.HitTest(ref other))
-                        //{
-                        //    Console.WriteLine("dwds");//j++;
-                        //}
+
                     }
                 }
             }

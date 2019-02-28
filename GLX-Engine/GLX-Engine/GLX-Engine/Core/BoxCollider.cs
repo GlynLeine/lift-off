@@ -109,8 +109,6 @@ namespace GLXEngine.Core
 
                     if (SATNarrowPhase(extendsA, positionA, extendsB, positionB, ref other))
                         return true;
-                    //else
-                    //return SATNarrowPhase(hullA, positionA + m_owner.parent.m_velocity, hullB, positionB + otherCollider.m_owner.parent.m_velocity, ref other);
                 }
                 return false;
             }

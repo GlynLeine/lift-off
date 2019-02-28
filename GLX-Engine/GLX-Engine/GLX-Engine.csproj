@@ -75,6 +75,7 @@
     <Compile Include="GLX-Engine\Game.cs" />
     <Compile Include="GLX-Engine\GameObject.cs" />
     <Compile Include="GLX-Engine\Physics\Physic.cs" />
+    <Compile Include="GLX-Engine\Quadtree.cs" />
     <Compile Include="GLX-Engine\Scene.cs" />
     <Compile Include="GLX-Engine\Utils\KeyInputHandler.cs" />
     <Compile Include="GLX-Engine\Sound.cs" />

@@ -9,7 +9,7 @@ namespace GameProject
     {
         static Map map;
 
-        static public void LoadObjects(ref Scene a_scene, string a_mapFile)
+        static public void LoadObjects(Scene a_scene, string a_mapFile)
         {
             map = tileMapLoad(a_mapFile);
             int[,] backgroundTiles = tilesLoad(1);
@@ -26,8 +26,8 @@ namespace GameProject
                 for (int j = 0; j < collisionTiles.GetLength(0); j++)
                 {
                     if (collisionTiles[j, i] == 0) continue;
-                    AnimationSprite sprite = new AnimationSprite("Textures/" + tileSet.Image.FileName, tileSet.Columns, tileSet.Rows);
-                    sprite.SetFrame(collisionTiles[j, i]);
+                    AnimationSprite sprite = new AnimationSprite(tileSet.Image.FileName, tileSet.Columns, tileSet.Rows);
+                    sprite.SetFrame(collisionTiles[j, i]-1);
                     WallTile tile = new WallTile(a_scene, sprite);
                     tile.x = j * map.TileWidth;
                     tile.y = i * map.TileHeight;
@@ -41,8 +41,8 @@ namespace GameProject
                 for (int j = 0; j < backgroundTiles.GetLength(0); j++)
                 {
                     if (backgroundTiles[j, i] == 0) continue;
-                    AnimationSprite sprite = new AnimationSprite("Textures/" + tileSet.Image.FileName, tileSet.Columns, tileSet.Rows);
-                    sprite.SetFrame(backgroundTiles[j, i]);
+                    AnimationSprite sprite = new AnimationSprite(tileSet.Image.FileName, tileSet.Columns, tileSet.Rows);
+                    sprite.SetFrame(backgroundTiles[j, i]-1);
                     BackgroundTile tile = new BackgroundTile(a_scene, sprite);
                     tile.x = j * map.TileWidth;
                     tile.y = i * map.TileHeight;
@@ -64,8 +64,8 @@ namespace GameProject
                 }
                 else if (objectTypes[i] == "Door")
                 {
-                    AnimationSprite sprite = new AnimationSprite("Textures/" + tileSet.Image.FileName, tileSet.Columns, tileSet.Rows);
-                    sprite.SetFrame(tiledObjects[i].GID);
+                    AnimationSprite sprite = new AnimationSprite(tileSet.Image.FileName, tileSet.Columns, tileSet.Rows);
+                    sprite.SetFrame(tiledObjects[i].GID-1);
                     gameObject = new Door(a_scene, sprite, (a_scene as Overworld).player, tiledObjects[i].GetIntProperty("ID"));
                 }
 
@@ -73,7 +73,7 @@ namespace GameProject
 
                 a_scene.AddChild(gameObject);
                 gameObject.x = tiledObjects[i].X;
-                gameObject.y = tiledObjects[i].Y;
+                gameObject.y = tiledObjects[i].Y - tileSet.TileHeight;
             }
         }
 
