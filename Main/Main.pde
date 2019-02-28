@@ -24,7 +24,6 @@ void setup()
   editor = new Editor();
 
   imageMode(CENTER);
-  a = new Object("Player", "player.png");
 }
 
 void draw()

@@ -50,10 +50,39 @@ namespace GameProject
             UI.TextFont(new Font("Eight-Bit Madness", 100));
             UI.TextAlign(CenterMode.Center, CenterMode.Center);
             UI.TextSize(1);
-            AddChild(UI);
 
             player = new Player(this, UI);
             AddChild(player);
+
+            Sprite wallSprite = new Sprite("Textures/gun.png");
+            WallTile wall = new WallTile(this, wallSprite);
+            wall.rotation = 90;
+            AddChild(wall);
+
+            wall = new WallTile(this, new Sprite("Textures/gun.png"));
+            wall.y = wallSprite.width;
+            wall.rotation = 90;
+            AddChild(wall);
+
+            wall = new WallTile(this, new Sprite("Textures/gun.png"));
+            wall.y = wallSprite.width*2;
+            wall.rotation = 90;
+            AddChild(wall);
+
+            PickUp pickUp = new PickUp(this, "Textures/gun.png", "GUN");
+            pickUp.x = 200;
+            AddChild(pickUp);
+
+            pickUp = new PickUp(this, "Textures/gun.png", "KEY1");
+            pickUp.x = 200;
+            pickUp.y = 100;
+            AddChild(pickUp);
+
+            Door door = new Door(this, new Sprite("Textures/gun.png"), player);
+            door.x = 300;
+            AddChild(door);
+
+
             bullets = new List<GameObject>();
 
             enemies = new List<GameObject>();
@@ -70,6 +99,8 @@ namespace GameProject
 
             backgroundMusic = new Sound("Audio/game_loop.wav", true);
             backgroundMusicChannel = backgroundMusic.Play();
+
+            AddChild(UI);
 
             System.Console.WriteLine(GetDiagnostics());
         }

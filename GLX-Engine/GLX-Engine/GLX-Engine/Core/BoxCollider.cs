@@ -5,59 +5,55 @@ namespace GLXEngine.Core
 {
     public class BoxCollider : Collider
     {
-        private Sprite m_owner;
+        private BoundsObject m_owner;
         private List<Type> _ignore;
+        //public EasyDraw m_canvas;
 
         //------------------------------------------------------------------------------------------------------------------------
         //														BoxCollider()
         //------------------------------------------------------------------------------------------------------------------------		
-        public BoxCollider(Sprite owner, Type[] ignore = null)
+        public BoxCollider(BoundsObject owner, Type[] ignore = null)
         {
             m_owner = owner;
             if (ignore != null)
                 _ignore = new List<Type>(ignore);
+            //m_canvas = a_canvas;
         }
 
         //------------------------------------------------------------------------------------------------------------------------
         //														HitTest()
         //------------------------------------------------------------------------------------------------------------------------		
-        public override bool HitTest(Collider other)
+        public override bool HitTest(ref Collider other)
         {
             if (other is BoxCollider)
             {
+                BoxCollider otherCollider = (other as BoxCollider);
+
                 if (m_owner.parent == null)
                     return false;
 
-                if (((BoxCollider)other).m_owner.parent == null)
+                if (otherCollider.m_owner.parent == null)
                     return false;
 
                 if (_ignore != null)
-                    if (_ignore.Contains(((BoxCollider)other).m_owner.parent.GetType()))
+                    if (_ignore.Contains(otherCollider.m_owner.parent.GetType()))
                         return false;
 
-                if (((BoxCollider)other)._ignore != null)
-                    if (((BoxCollider)other)._ignore.Contains(m_owner.parent.GetType()))
+                if (otherCollider._ignore != null)
+                    if (otherCollider._ignore.Contains(m_owner.parent.GetType()))
                         return false;
 
                 Vector2[] extendsA = m_owner.GetExtents();
                 if (extendsA == null) return false;
 
-                Vector2[] extendsB = ((BoxCollider)other).m_owner.GetExtents();
+                Vector2[] extendsB = otherCollider.m_owner.GetExtents();
                 if (extendsB == null) return false;
 
                 Vector2 positionA = m_owner.screenPosition;
-                Vector2[] hullA = new Vector2[extendsA.Length];
-                for (int i = 0; i < extendsA.Length; i++)
-                {
-                    hullA[i] = new Vector2(extendsA[i]) - positionA;
-                }
+                Vector2[] hullA = m_owner.GetHull();
 
-                Vector2 positionB = ((BoxCollider)other).m_owner.screenPosition;
-                Vector2[] hullB = new Vector2[extendsB.Length];
-                for (int i = 0; i < extendsB.Length; i++)
-                {
-                    hullB[i] = new Vector2(extendsB[i]) - positionB;
-                }
+                Vector2 positionB = otherCollider.m_owner.screenPosition;
+                Vector2[] hullB = otherCollider.m_owner.GetHull();
 
                 float extendA = 0, extendB = 0;
 
@@ -78,9 +74,18 @@ namespace GLXEngine.Core
                 }
 
                 Vector2 velocityA = m_owner.parent.m_velocity * Time.deltaTime / 1000f;
-                Vector2 velocityB = ((BoxCollider)other).m_owner.parent.m_velocity * Time.deltaTime / 1000f;
+                Vector2 velocityB = otherCollider.m_owner.parent.m_velocity * Time.deltaTime / 1000f;
                 float speedAsqr = velocityA.sqrMagnitude;
                 float speedBsqr = velocityB.sqrMagnitude;
+
+                //if (m_canvas != null)
+                //{
+                //    m_canvas.Quad(extendsA[0].x, extendsA[0].y, extendsA[1].x, extendsA[1].y, extendsA[2].x, extendsA[2].y, extendsA[3].x, extendsA[3].y);
+
+                //    m_canvas.Fill(255, 0, 0);
+                //    m_canvas.Ellipse(positionA.x, positionA.y, 10, 10);
+                //    m_canvas.Fill(0);
+                //}
 
                 if (CircleBroadPhase(hullA, positionA, velocityA, extendA, hullB, positionB, velocityB, extendB))
                 {
@@ -102,10 +107,10 @@ namespace GLXEngine.Core
                     //        return true;
                     //}
 
-                    if (SATNarrowPhase(hullA, positionA, hullB, positionB))
+                    if (SATNarrowPhase(extendsA, positionA, extendsB, positionB, ref other))
                         return true;
-                    else
-                        return SATNarrowPhase(hullA, positionA + m_owner.parent.m_velocity, hullB, positionB + ((BoxCollider)other).m_owner.parent.m_velocity);
+                    //else
+                    //return SATNarrowPhase(hullA, positionA + m_owner.parent.m_velocity, hullB, positionB + otherCollider.m_owner.parent.m_velocity, ref other);
                 }
                 return false;
             }
@@ -146,10 +151,10 @@ namespace GLXEngine.Core
         private bool LSINarrowPhase(Vector2[] hullA, Vector2 positionA, Vector2 velocityA, Vector2[] hullB, Vector2 positionB)
         {
             Vector2 closestPoint = null;
-            foreach(Vector2 point in hullA)
-                if(closestPoint == null)
+            foreach (Vector2 point in hullA)
+                if (closestPoint == null)
                     closestPoint = point;
-                else if(Vector2.Distance(point, positionB) < Vector2.Distance(closestPoint, positionB))
+                else if (Vector2.Distance(point, positionB) < Vector2.Distance(closestPoint, positionB))
                     closestPoint = point;
 
             Vector2 lineEnd = closestPoint + velocityA;
@@ -162,19 +167,26 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------
         //														SATNarrowPhase()
         //------------------------------------------------------------------------------------------------------------------------
-        private bool SATNarrowPhase(Vector2[] hullA, Vector2 positionA, Vector2[] hullB, Vector2 positionB)
+        private bool SATNarrowPhase(Vector2[] hullA, Vector2 positionA, Vector2[] hullB, Vector2 positionB, ref Collider other)
         {
             List<Vector2> axes = new List<Vector2>();
 
+            #region Get Axes
             for (int i = 0; i < hullA.Length; i++)
             {
                 Vector2 a = hullA[i];
                 Vector2 b = hullA[(i + 1) % hullA.Length];
                 Vector2 normal = (b - a).normal;
                 normal = new Vector2(normal.y, -normal.x);
-                if (normal.angle > 180)
-                    normal.angle -= 180;
-                if (!axes.Contains(normal))
+
+                //if (m_canvas != null)
+                //{
+                //    m_canvas.Stroke(0, 255, 0);
+                //    m_canvas.Line(positionA.x, positionA.y, positionA.x + normal.x * 50, positionA.y + normal.y * 50);
+                //    m_canvas.Stroke(0);
+                //}
+
+                if (!axes.Contains(normal) && !axes.Contains(-normal))
                     axes.Add(normal);
             }
             for (int i = 0; i < hullB.Length; i++)
@@ -183,18 +195,20 @@ namespace GLXEngine.Core
                 Vector2 b = hullB[(i + 1) % hullB.Length];
                 Vector2 normal = (b - a).normal;
                 normal = new Vector2(normal.y, -normal.x);
-                if (normal.angle > 180)
-                    normal.angle -= 180;
-                if (!axes.Contains(normal))
+
+                if (!axes.Contains(normal) && !axes.Contains(-normal))
                     axes.Add(normal.Normalize());
             }
+            #endregion
+
+            Vector2 mtv = new Vector2(float.MaxValue, float.MaxValue);
 
             for (int i = 0; i < axes.Count; i++)
             {
                 float minA = float.MaxValue, maxA = float.MinValue, minB = float.MaxValue, maxB = float.MinValue;
                 for (int j = 0; j < hullA.Length; j++)
                 {
-                    float projection = (hullA[j] + positionA).Dot(axes[i]);
+                    float projection = (hullA[j]).Dot(axes[i]);
                     if (projection < minA)
                         minA = projection;
                     if (projection > maxA)
@@ -202,15 +216,35 @@ namespace GLXEngine.Core
                 }
                 for (int j = 0; j < hullB.Length; j++)
                 {
-                    float projection = (hullB[j] + positionB).Dot(axes[i]);
+                    float projection = (hullB[j]).Dot(axes[i]);
                     if (projection < minB)
                         minB = projection;
                     if (projection > maxB)
                         maxB = projection;
                 }
+
                 if (!(minA <= maxB && maxA >= minB))
+                {
+                    m_minimumTranslationVec = new Vector2();
                     return false;
+                }
+
+                float overlap = maxA < maxB ? -(maxA - minB) : (maxB - minA);
+                if (Mathf.Abs(overlap) < mtv.magnitude)
+                {
+                    mtv = axes[i] * overlap;
+                }
+
             }
+
+            m_minimumTranslationVec = (m_minimumTranslationVec + mtv) / 2;
+
+            //if (m_canvas != null)
+            //{
+            //    m_canvas.Stroke(0, 0, 255);
+            //    m_canvas.Line(positionA.x, positionA.y, positionA.x + mtv.x, positionA.y + mtv.y);
+            //    m_canvas.Stroke(0);
+            //}
 
             return true;
         }

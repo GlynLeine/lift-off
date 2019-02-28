@@ -28,12 +28,13 @@ namespace GameProject
 
         GameObject m_owner;
         GameObject m_player;
+        EasyDraw m_canvas;
 
         protected ReloadStyle m_reloadStyle;
 
         Sprite m_sprite = new Sprite("Textures/gun.png");
 
-        public Gun(Scene a_scene, ReloadStyle a_reloadStyle, GameObject a_owner, GameObject a_player) : base(a_scene)
+        public Gun(Scene a_scene, ReloadStyle a_reloadStyle, GameObject a_owner, GameObject a_player, EasyDraw a_canvas) : base(a_scene)
         {
             m_reloadStyle = a_reloadStyle;
 
@@ -53,23 +54,24 @@ namespace GameProject
                 m_shotSound = new Sound("Audio/shotgun_shot.wav");
             }
 
-            y += 10;
-            x -= 10;
             m_reloadTimeBuffer = m_reloadTime;
             m_clip = m_clipSize;
 
             m_owner = a_owner;
             m_player = a_player;
-            m_sprite.SetOrigin(0, m_sprite.height / 2f);
+            m_sprite.SetOrigin(m_sprite.width / 2f, m_sprite.height / 2f);
             AddChild(m_sprite);
+
+            m_canvas = a_canvas;
+            //(collider as BoxCollider).m_canvas = a_canvas;
         }
 
         protected override Collider createCollider()
         {
-            return new BoxCollider(m_sprite, new System.Type[] { GetType() });
+            return null;// new BoxCollider(m_sprite, ref m_canvas, new System.Type[] { GetType() });
         }
 
-        public void OnCollision(GameObject other)
+        public void OnCollision(GameObject other, Vector2 a_mtv)
         {
             if (other is Bullet)
             {
@@ -153,7 +155,7 @@ namespace GameProject
 
         public void Reload()
         {
-            if(!(m_clip == m_clipSize))
+            if (!(m_clip == m_clipSize))
             {
                 if (m_reloadStyle == ReloadStyle.COMPLETE_CLIP)
                     m_reloadSoundChannel = m_reloadSound.Play();
@@ -182,7 +184,7 @@ namespace GameProject
 
         void CreateBullet(float a_angleOffset = 0f)
         {
-            Bullet bullet = new Bullet(m_scene, m_owner, m_player);
+            Bullet bullet = new Bullet(m_scene, m_owner, m_player, m_canvas);
             bullet.SetScaleXY(4);
             ((Overworld)m_scene).bullets.Add(bullet);
             Vector2 fwd = new Vector2(m_owner.rotation);

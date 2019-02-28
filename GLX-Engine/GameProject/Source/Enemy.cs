@@ -26,11 +26,13 @@ namespace GameProject
             m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
             m_sprite.x -= 10;
             m_sprite.y -= 12;
-            m_sprite.rotation = 45;
+            m_sprite.rotation = 50;
             AddChild(m_sprite);
 
-            m_gun = new Gun(a_scene, ReloadStyle.COMPLETE_CLIP, this, a_player);
+            m_gun = new Gun(a_scene, ReloadStyle.COMPLETE_CLIP, this, a_player, m_canvas);
             m_gun.SetActive(true);
+            m_gun.y += 10;
+            m_gun.x += 20;
             AddChild(m_gun);
 
             m_player = a_player;
@@ -39,14 +41,15 @@ namespace GameProject
             m_crashSound = new Sound("Audio/crash.wav");
 
             m_canvas = a_canvas;
+            //(collider as BoxCollider).m_canvas = a_canvas;
         }
 
         protected override Collider createCollider()
         {
-            return new BoxCollider(m_sprite, new System.Type[] { GetType() });
+            return new BoxCollider(m_sprite);//, ref m_canvas);
         }
 
-        public void OnCollision(GameObject other)
+        public void OnCollision(GameObject other, Vector2 a_mtv)
         {
             if (other is Bullet)
             {
@@ -55,6 +58,16 @@ namespace GameProject
                     other.Destroy();
                     m_hp.current -= 20f;
                 }
+            }
+            else if (!HasChild(other) && !(other is PickUp))
+            {
+                if (other is WallTile)
+                {
+                    Vector2 normal = (position - other.position).normal;
+                    m_force += Seperate(new List<Vector2>{ other.position + Vector2.RandomFromAngle(normal.angle + 90, normal.angle - 90) }, 100);
+                }
+
+                position += a_mtv;
             }
         }
 

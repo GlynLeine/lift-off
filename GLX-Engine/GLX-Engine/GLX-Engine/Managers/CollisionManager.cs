@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Collections.Generic;
+using GLXEngine.Core;
 
 namespace GLXEngine
 {
@@ -10,23 +11,23 @@ namespace GLXEngine
     public class CollisionManager
     {
 
-        private delegate void CollisionDelegate(GameObject gameObject);
+        private delegate void CollisionDelegate(GameObject a_gameObject, Vector2 a_minimumTranslationVec);
 
         //------------------------------------------------------------------------------------------------------------------------
         //														ColliderInfo
         //------------------------------------------------------------------------------------------------------------------------
         private struct ColliderInfo
         {
-            public GameObject gameObject;
-            public CollisionDelegate onCollision;
+            public GameObject m_gameObject;
+            public CollisionDelegate m_onCollision;
 
             //------------------------------------------------------------------------------------------------------------------------
             //														ColliderInfo()
             //------------------------------------------------------------------------------------------------------------------------
-            public ColliderInfo(GameObject gameObject, CollisionDelegate onCollision)
+            public ColliderInfo(GameObject a_gameObject, CollisionDelegate a_onCollision)
             {
-                this.gameObject = gameObject;
-                this.onCollision = onCollision;
+                m_gameObject = a_gameObject;
+                m_onCollision = a_onCollision;
             }
         }
 
@@ -62,10 +63,20 @@ namespace GLXEngine
                     if (j >= colliderList.Count) continue; //fix for removal in loop
 
                     GameObject other = colliderList[j];
-                    if (info.gameObject != other)
-                        if (info.gameObject.HitTest(other))
-                            if (info.onCollision != null)
-                                info.onCollision(other);
+                    if (info.m_gameObject != other)
+                    {
+                        if (info.m_gameObject.HitTest(ref other))
+                        {
+                            if (info.m_onCollision != null)
+                                info.m_onCollision(other, info.m_gameObject.collider.m_minimumTranslationVec);
+
+                            info.m_gameObject.collider.m_minimumTranslationVec = new Vector2();
+                        }
+                        //if (info.m_gameObject.HitTest(ref other))
+                        //{
+                        //    Console.WriteLine("dwds");//j++;
+                        //}
+                    }
                 }
             }
         }
@@ -83,7 +94,7 @@ namespace GLXEngine
 
                 GameObject other = colliderList[j];
                 if (gameObject != other)
-                    if (gameObject.HitTest(other))
+                    if (gameObject.HitTest(ref other))
                         list.Add(other);
 
             }
@@ -93,7 +104,7 @@ namespace GLXEngine
         //------------------------------------------------------------------------------------------------------------------------
         //														Add()
         //------------------------------------------------------------------------------------------------------------------------
-        public void Add(GameObject gameObject)
+        public void Add(ref GameObject gameObject)
         {
             if (gameObject.collider != null && !colliderList.Contains(gameObject))
             {

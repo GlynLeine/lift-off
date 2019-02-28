@@ -1,11 +1,10 @@
 ﻿using GLXEngine.Core;
-using GLXEngine;
 using System.Collections.Generic;
 
 
-namespace GameProject
+namespace GLXEngine
 {
-    class Boid : GameObject
+    public class Boid : GameObject
     {
         protected Vector2 m_force;
 
@@ -101,6 +100,54 @@ namespace GameProject
                 if (distance > 0 && distance < a_seperationDistance)
                 {
                     Vector2 diff = (position - other.position).normal;
+                    diff /= distance;
+                    steer += diff;
+                    count++;
+                }
+            }
+
+            if (count > 0)
+            {
+                steer /= count;
+            }
+
+            if (steer.magnitude > 0)
+            {
+                if (a_seperationStrength < 0)
+                    steer.magnitude = m_maxSpeed;
+                else
+                    steer.magnitude = a_seperationStrength;
+
+                steer -= m_velocity;
+
+                if (a_forceClamp < 0)
+                {
+                    if (steer.magnitude > m_maxForce)
+                        steer.magnitude = m_maxForce;
+                }
+                else
+                {
+                    if (steer.magnitude > a_forceClamp)
+                        steer.magnitude = a_forceClamp;
+                }
+            }
+
+            //m_debugDraw.Stroke(System.Drawing.Color.Red);
+            //m_debugDraw.Line(screenPosition.x, screenPosition.y, screenPosition.x + steer.x * 15, screenPosition.y + steer.y * 15);
+            return steer;
+        }
+
+        public Vector2 Seperate(List<Vector2> a_positions, float a_seperationDistance, float a_seperationStrength = -1, float a_forceClamp = -1)
+        {
+            Vector2 steer = new Vector2();
+            int count = 0;
+
+            foreach (Vector2 otherPos in a_positions)
+            {
+                float distance = Vector2.Distance(position, otherPos);
+                if (distance > 0 && distance < a_seperationDistance)
+                {
+                    Vector2 diff = (position - otherPos).normal;
                     diff /= distance;
                     steer += diff;
                     count++;

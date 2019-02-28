@@ -64,6 +64,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GLX-Engine\ArduinoInterface.cs" />
+    <Compile Include="GLX-Engine\Boid.cs" />
+    <Compile Include="GLX-Engine\BoundsObject.cs" />
     <Compile Include="GLX-Engine\Canvas.cs" />
     <Compile Include="GLX-Engine\Components.cs" />
     <Compile Include="GLX-Engine\Controller.cs" />

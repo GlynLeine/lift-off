@@ -167,7 +167,7 @@ namespace GLXEngine
             if (!m_gameObjectsContained.Contains(gameObject))
             {
                 m_updateManager.Add(gameObject);
-                m_collisionManager.Add(gameObject);
+                m_collisionManager.Add(ref gameObject);
                 m_gameObjectsContained.Add(gameObject);
                 m_keyInputHandler.ScanObject(gameObject);
             }

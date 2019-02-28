@@ -11,18 +11,22 @@ namespace GameProject
         public GameObject m_owner;
         public GameObject m_player;
 
-        public Bullet(Scene a_scene, GameObject a_shooter, GameObject a_player) : base(a_scene)
+        private EasyDraw m_canvas;
+
+        public Bullet(Scene a_scene, GameObject a_shooter, GameObject a_player, EasyDraw a_canvas) : base(a_scene)
         {
             m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
             AddChild(m_sprite);
 
             m_owner = a_shooter;
             m_player = a_player;
+            m_canvas = a_canvas;
+            //(collider as BoxCollider).m_canvas = a_canvas;
         }
 
         protected override Collider createCollider()
         {
-            return new BoxCollider(m_sprite);
+            return new BoxCollider(m_sprite);//, ref m_canvas);
         }
         protected override void OnDestroy()
         {
@@ -37,7 +41,7 @@ namespace GameProject
                 Destroy();
             }
 
-            position += m_velocity * a_dt + ( m_velocity.normal.Dot(m_player.m_velocity * a_dt) * m_velocity.normal);
+            position += m_velocity * a_dt + (m_velocity.normal.Dot(m_player.m_velocity * a_dt) * m_velocity.normal);
             rotation = m_velocity.angle;
         }
     }

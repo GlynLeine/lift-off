@@ -14,6 +14,10 @@ class Editor
 
   Editor()
   {
+    inputHandler.AddMousePressType("Click");
+    inputHandler.BindMousePress(new Click(), "Click");
+    inputHandler.AddMouseMoveType("Drag");
+    inputHandler.BindMouseMove(new Drag(), "Drag");
   }
 
   void Update()
@@ -58,6 +62,7 @@ class Editor
         case SCALE:
           break;
         case DRAW:
+        
           break;
         default:
           break;

@@ -75,9 +75,10 @@ namespace GLXEngine
         //------------------------------------------------------------------------------------------------------------------------
         //														collider
         //------------------------------------------------------------------------------------------------------------------------
-        internal Collider collider
+        public Collider collider
         {
             get { return _collider; }
+            set { _collider = value;}
         }
 
         //------------------------------------------------------------------------------------------------------------------------
@@ -114,7 +115,7 @@ namespace GLXEngine
         /// </summary>
         public void Destroy()
         {
-            if (!game.Contains(this)) return;
+            if (!m_scene.Contains(this)) return;
             OnDestroy();
 
             //detach all children
@@ -347,9 +348,9 @@ namespace GLXEngine
         /// <param name='other'>
         /// Other.
         /// </param>
-        virtual public bool HitTest(GameObject other)
+        virtual public bool HitTest(ref GameObject other)
         {
-            return _collider != null && other._collider != null && _collider.HitTest(other._collider);
+            return _collider != null && other._collider != null && _collider.HitTest(ref other._collider);
         }
 
         //------------------------------------------------------------------------------------------------------------------------

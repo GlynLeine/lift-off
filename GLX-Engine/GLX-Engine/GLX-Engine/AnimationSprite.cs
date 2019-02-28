@@ -79,7 +79,7 @@ namespace GLXEngine
 			
 			_frameWidth = 1.0f / (float)cols;
 			_frameHeight = 1.0f / (float)rows;
-			_bounds = new Rectangle(0, 0, _texture.width * _frameWidth, _texture.height * _frameHeight);
+			m_bounds = new Rectangle(0, 0, _texture.width * _frameWidth, _texture.height * _frameHeight);
 			
 			_currentFrame = -1;
 			SetFrame(0);
@@ -91,13 +91,13 @@ namespace GLXEngine
 		/// <summary>
 		/// Gets or sets the sprite's width in pixels.
 		/// </summary>
-		override public int width {
+		override public float width {
 			get { 
-				if (_texture != null) return (int)Math.Abs(_texture.width * scaleX * _frameWidth);
+				if (_texture != null) return Math.Abs(_texture.width * scaleX * _frameWidth);
 				return 0;
 			}
 			set {
-				if (_texture != null && _texture.width != 0) scaleX = value / ((float)_texture.width * _frameWidth);
+				if (_texture != null && _texture.width != 0) scaleX = value / (_texture.width * _frameWidth);
 			}
 		}
 		
@@ -107,13 +107,13 @@ namespace GLXEngine
 		/// <summary>
 		/// Gets or sets the sprite's height in pixels.
 		/// </summary>
-		override public int height {
+		override public float height {
 			get { 
-				if (_texture != null) return (int)Math.Abs(_texture.height * scaleY * _frameHeight);
+				if (_texture != null) return Math.Abs(_texture.height * scaleY * _frameHeight);
 				return 0;
 			}
 			set {
-				if (_texture != null && _texture.height != 0) scaleY = value / ((float)_texture.height * _frameHeight);
+				if (_texture != null && _texture.height != 0) scaleY = value / (_texture.height * _frameHeight);
 			}
 		}
 

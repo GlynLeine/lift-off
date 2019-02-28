@@ -2,7 +2,7 @@ using System;
 
 namespace GLXEngine.Core
 {
-	public struct Rectangle
+	public class Rectangle
 	{
 		public float x, y, width, height;
 		

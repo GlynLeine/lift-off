@@ -4,6 +4,8 @@ namespace GLXEngine.Core
 {
 	public class Collider
 	{
+        public Vector2 m_minimumTranslationVec = new Vector2();
+
 		public Collider ()
 		{
 		}
@@ -11,7 +13,7 @@ namespace GLXEngine.Core
 		//------------------------------------------------------------------------------------------------------------------------
 		//														HitTest()
 		//------------------------------------------------------------------------------------------------------------------------		
-		public virtual bool HitTest (Collider other) {
+		public virtual bool HitTest (ref Collider other) {
 			return false;
 		}
 		

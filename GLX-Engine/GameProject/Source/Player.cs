@@ -6,8 +6,10 @@ namespace GameProject
 {
     public class Player : GameObject
     {
-        const float m_speed = 600f;
+        const float m_speed = 600;
         const float m_angularAcceleration = 5f;
+
+        public List<string> m_tags = new List<string>();
 
         Vector2 m_direction = new Vector2();
 
@@ -33,15 +35,20 @@ namespace GameProject
             m_sprite.SetOrigin(m_sprite.width / 2, m_sprite.height / 2);
             m_sprite.x -= 10;
             m_sprite.y -= 12;
-            m_sprite.rotation = 45;
+            m_sprite.rotation = 50;
             AddChild(m_sprite);
 
-            m_guns = new List<Gun> { new Gun(a_scene, ReloadStyle.COMPLETE_CLIP, this, this), new Gun(a_scene, ReloadStyle.SHOT_BY_SHOT, this, this) };
+            m_guns = new List<Gun> { new Gun(a_scene, ReloadStyle.COMPLETE_CLIP, this, this, m_canvas), new Gun(a_scene, ReloadStyle.SHOT_BY_SHOT, this, this, m_canvas) };
             foreach (Gun gun in m_guns)
+            {
+                gun.y += 12;
+                gun.x += 15;
                 AddChild(gun);
+            }
             m_guns[0].SetActive(true);
 
             m_canvas = a_canvas;
+            //(collider as BoxCollider).m_canvas = a_canvas;
 
             m_deathSound = new Sound("Audio/death.wav");
 
@@ -49,7 +56,7 @@ namespace GameProject
 
         protected override Collider createCollider()
         {
-            return new BoxCollider(m_sprite);
+            return new BoxCollider(m_sprite);//, ref m_canvas);
         }
 
         public void MoveForward(float a_value, List<int> a_controllerID)
@@ -130,19 +137,31 @@ namespace GameProject
 
         }
 
-        public void OnCollision(GameObject other)
+        public void OnCollision(GameObject other, Vector2 a_mtv)
         {
-            //if (m_hp.current <= 0)
-            //    return;
+            if (m_hp.current <= 0)
+                return;
 
-            //if (other is Bullet)
-            //{
-            //    if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
-            //    {
-            //        other.Destroy();
-            //        m_hp.current -= 5f;
-            //    }
-            //}
+            if (other is Bullet)
+            {
+                //if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
+                //{
+                //    other.Destroy();
+                //    m_hp.current -= 5f;
+                //}
+            }
+            else if (other is PickUp)
+            {
+                other.Destroy();
+                m_canvas.Text(other.name, 400, 400);
+
+                if (!m_tags.Contains(other.name))
+                    m_tags.Add(other.name);
+            }
+            else if (!HasChild(other))
+            {
+                position += a_mtv;
+            }
         }
 
         void Update(float a_dt)
