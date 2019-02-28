@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using GLXEngine.Core;
 
-namespace GLX_Engine
+namespace GLXEngine
 {
     class Quadtree
     {
+
+
+        List<Vector2> m_points;
+
     }
 }
