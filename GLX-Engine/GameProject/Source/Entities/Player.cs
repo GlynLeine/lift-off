@@ -16,6 +16,10 @@ namespace GameProject
         Vector2 m_dodgeForce = new Vector2();
         Vector2 m_movementForce = new Vector2();
 
+        float m_dodgeTimeBuffer = 0;
+        float m_dodgeCooldownTime = 1f;
+        bool m_dodgeCooldown = false;
+
         float m_animTimeBuffer = 0;
         float m_animFrameTime = 0.15f;
         AnimationSprite m_sprite = new AnimationSprite("Textures/playerAnim.png", 6, 1);
@@ -100,7 +104,7 @@ namespace GameProject
             if (m_hp.current <= 0)
                 return;
 
-                m_guns[m_currentGun].Shoot(a_pressed);
+            m_guns[m_currentGun].Shoot(a_pressed);
         }
 
         public void Reload(bool a_pressed, int a_controllerID)
@@ -114,10 +118,12 @@ namespace GameProject
 
         public void Dodge(bool a_pressed, int a_controllerID)
         {
-            if (!a_pressed)
+            if (!a_pressed && !m_dodgeCooldown)
             {
+                m_dodgeCooldown = true;
+                m_dodgeTimeBuffer = 0;
                 Vector2 fwd = new Vector2(rotation);
-                m_dodgeForce -= fwd * 1500;
+                m_dodgeForce -= fwd * 800;
             }
         }
 
@@ -143,11 +149,11 @@ namespace GameProject
 
             if (other is Bullet)
             {
-                //if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
-                //{
-                //    other.Destroy();
-                //    m_hp.current -= 5f;
-                //}
+                if (((Bullet)other).m_owner.GetType().Equals(typeof(Enemy)))
+                {
+                    other.Destroy();
+                    m_hp.current -= 5f;
+                }
             }
             else if (other is PickUp)
             {
@@ -173,7 +179,14 @@ namespace GameProject
                 }
 
                 if (!m_deathSoundChannel.IsPlaying)
-                    ((Program)game).Restart();
+                    game.End();
+            }
+
+            m_dodgeTimeBuffer += a_dt;
+            if(m_dodgeTimeBuffer > m_dodgeCooldownTime)
+            {
+                m_dodgeCooldown = false;
+                m_dodgeTimeBuffer = m_dodgeCooldownTime;
             }
 
             if (m_direction.sqrMagnitude > 0)

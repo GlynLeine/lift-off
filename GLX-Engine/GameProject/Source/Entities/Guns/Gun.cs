@@ -12,7 +12,7 @@ namespace GameProject
 
     abstract class Gun : BoundsObject
     {
-        protected bool m_automatic = false;
+        protected bool m_automatic = true;
 
         protected float m_shotTimeBuffer = 0;
         protected float m_shotTime;

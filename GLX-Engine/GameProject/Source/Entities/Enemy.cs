@@ -25,7 +25,7 @@ namespace GameProject
         {
             m_reactionScalar = a_reactionScaler;
 
-            if(m_reactionScalar > 0.2)
+            if(m_reactionScalar > 0.25)
             {
                 m_sprite = new AnimationSprite("Textures/enemyBlackAnim.png", 6, 1);
                 collider = new BoxCollider(m_sprite);
@@ -37,7 +37,7 @@ namespace GameProject
             m_sprite.rotation = 50;
             AddChild(m_sprite);
 
-            m_gun = new TommyGun(a_scene, this, a_player);
+            m_gun = new Carbine(a_scene, this, a_player);
             m_gun.SetActive(true);
             m_gun.y += 10;
             m_gun.x += 20;
@@ -223,7 +223,7 @@ namespace GameProject
                 {
                     Flock(new List<GameObject> { m_player }, screenDistance * 0.65f, 0, float.MaxValue);
 
-                    if (Utils.Random(0, 500) <= 1 && Vector2.Distance(position, m_player.position) < 900)
+                    if (Utils.Random(0, 200 - (m_scene as Overworld).difficulty) <= 1 && Vector2.Distance(position, m_player.position) < 900)
                     {
                         m_gun.Shoot(true);
                     }

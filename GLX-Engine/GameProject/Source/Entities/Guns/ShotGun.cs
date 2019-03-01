@@ -18,7 +18,7 @@ namespace GameProject
             m_damage = 30;
             m_inaccuracy = 2;
             m_spread = 1;
-            m_bulletsPerShot = 6;
+            m_bulletsPerShot = 12;
 
             Setup();
         }

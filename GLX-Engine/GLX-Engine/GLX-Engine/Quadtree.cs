@@ -15,7 +15,7 @@ namespace GLXEngine
             public float x { get { return position.x; } set { position.x = value; } }
             public float y { get { return position.y; } set { position.y = value; } }
 
-            Point(Vector2 a_pos, object a_data)
+            public Point(Vector2 a_pos, object a_data)
             {
                 position = a_pos;
                 data = a_data;
@@ -24,21 +24,25 @@ namespace GLXEngine
 
         List<Point> m_points;
 
-        Rectangle m_boundary;
-        int m_capacity;
+        public Rectangle m_boundary;
+        public int m_capacity;
         bool m_divided;
 
-        public int Count()
+        public int Count
         {
-            int count = m_points.Count;
-            if (m_divided)
+            get
             {
-                count += m_northeast.Count();
-                count += m_northwest.Count();
-                count += m_southeast.Count();
-                count += m_southwest.Count();
+                int count = m_points.Count;
+                if (m_divided)
+                {
+                    count += m_northeast.Count;
+                    count += m_northwest.Count;
+                    count += m_southeast.Count;
+                    count += m_southwest.Count;
+                }
+                return count;
             }
-            return count;
+            private set { }
 
         }
 
@@ -56,20 +60,35 @@ namespace GLXEngine
             m_divided = false;
         }
 
+        public QuadTree(QuadTree a_source)
+        {
+            m_capacity = a_source.m_capacity;
+            m_boundary = new Rectangle(a_source.m_boundary);
+            m_points = new List<Point>(a_source.m_points);
+            m_divided = a_source.m_divided;
+            if (a_source.m_divided)
+            {
+                m_northeast = new QuadTree(a_source.m_northeast);
+                m_northwest = new QuadTree(a_source.m_northwest);
+                m_southeast = new QuadTree(a_source.m_southeast);
+                m_southwest = new QuadTree(a_source.m_southwest);
+            }
+        }
+
         public void SubDivide()
         {
             float w = m_boundary.width / 2;
             float h = m_boundary.height / 2;
-            float x = m_boundary.x + w;
-            float y = m_boundary.y + h;
+            float x = m_boundary.x;
+            float y = m_boundary.y;
 
-            Rectangle ne = new Rectangle(x + w, y - h, w, h);
+            Rectangle ne = new Rectangle(x + w, y, w, h);
             m_northeast = new QuadTree(ne, m_capacity);
-            Rectangle nw = new Rectangle(x - w, y - h, w, h);
+            Rectangle nw = new Rectangle(x, y, w, h);
             m_northwest = new QuadTree(nw, m_capacity);
             Rectangle se = new Rectangle(x + w, y + h, w, h);
             m_southeast = new QuadTree(se, m_capacity);
-            Rectangle sw = new Rectangle(x - w, y + h, w, h);
+            Rectangle sw = new Rectangle(x, y + h, w, h);
             m_southwest = new QuadTree(sw, m_capacity);
 
             m_divided = true;
@@ -84,7 +103,7 @@ namespace GLXEngine
 
             if (m_points.Count < m_capacity)
             {
-                m_points.AddRange(m_points);
+                m_points.Add(a_point);
                 return true;
             }
 
@@ -122,14 +141,14 @@ namespace GLXEngine
             return found;
         }
 
-        public List<Point> closest(Point a_point, int a_count = 1, float a_startingSize = 1)
+        public List<Point> Closest(Point a_point, int a_count = 1, float a_startingSize = 1)
         {
             // Limit to number of points in this QuadTree
-            if (Count() == 0)
+            if (Count == 0)
             {
                 return new List<Point>();
             }
-            if (Count() < a_count)
+            if (Count < a_count)
             {
                 return m_points;
             }

@@ -36,18 +36,18 @@ namespace GLXEngine
 		}
     }
 
-    public class Point
+    public class PhysPoint
     {
         public Vector2 m_position = new Vector2();
         public Vector2 m_previousPosition = new Vector2();
 
-        public Point(Vector2 a_position, Vector2 a_previousPosition)    {   m_position = a_position; m_previousPosition = a_previousPosition;   }
-        public Point(Point a_source) {  m_position = a_source.m_position; m_previousPosition = a_source.m_previousPosition; }
+        public PhysPoint(Vector2 a_position, Vector2 a_previousPosition)    {   m_position = a_position; m_previousPosition = a_previousPosition;   }
+        public PhysPoint(PhysPoint a_source) {  m_position = a_source.m_position; m_previousPosition = a_source.m_previousPosition; }
     }
 
     public class MeshComponent2D : ECSComponent
     {
-        public List<Point> points = new List<Point>();
+        public List<PhysPoint> points = new List<PhysPoint>();
     }
 
     public class PhysicsComponent : ECSComponent

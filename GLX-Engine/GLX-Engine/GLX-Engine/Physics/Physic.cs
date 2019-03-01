@@ -25,10 +25,10 @@ namespace GLXEngine.Physics
 
                 Vector2 origin = new Vector2();
 
-                List<Point> points = meshComponent.points;
+                List<PhysPoint> points = meshComponent.points;
                 for(int i = 0; i < points.Count; i++)
                 {
-                    Point point = points[i];
+                    PhysPoint point = points[i];
                     Vector2 velocity = point.m_position - point.m_previousPosition;
                     point.m_position += velocity;
                     point.m_previousPosition = point.m_position;

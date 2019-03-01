@@ -15,8 +15,8 @@ namespace GameProject
 
             m_clipSize = 15;
 
-            m_damage = 50;
-            m_inaccuracy = 2;
+            m_damage = 60;
+            m_inaccuracy = 1f;
             m_spread = 0;
             m_bulletsPerShot = 1;
 

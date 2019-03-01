@@ -27,6 +27,15 @@ namespace GameProject
         {
             return new BoxCollider(m_sprite);
         }
+
+        public void OnCollision(GameObject other, Vector2 a_mtv)
+        {
+            if (other is WallTile)
+            {
+                Destroy();
+            }
+        }
+
         protected override void OnDestroy()
         {
             ((Overworld)m_scene).bullets.Remove(this);

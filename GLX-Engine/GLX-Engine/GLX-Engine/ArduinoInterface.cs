@@ -93,13 +93,13 @@ public class ArduinoInterface
                     m_port.Close();
                     try { m_port.Open(); }
                     catch (System.IO.IOException e) { continue; }
-                    catch (System.UnauthorizedAccessException e) { Console.WriteLine("Not a controller or controller in use by different process"); continue; }
+                    catch (UnauthorizedAccessException e) { Console.WriteLine("Not a controller or controller in use by different process"); continue; }
                 }
                 else
                 {
                     try { m_port.Open(); }
                     catch (System.IO.IOException e) { continue; }
-                    catch (System.UnauthorizedAccessException e) { Console.WriteLine("Not a controller or controller in use by different process"); continue; }
+                    catch (UnauthorizedAccessException e) { Console.WriteLine("Not a controller or controller in use by different process"); continue; }
                 }
 
                 m_port.DiscardOutBuffer();

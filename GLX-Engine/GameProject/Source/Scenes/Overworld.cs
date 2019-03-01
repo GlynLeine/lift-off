@@ -15,7 +15,9 @@ namespace GameProject
         Sound backgroundMusic;
         SoundChannel backgroundMusicChannel;
 
-        readonly uint enemyCount = (uint)((Game.main.width * Game.main.height) / 48000f);
+        private uint enemyCount = 5;
+
+        public float difficulty = 0;
 
         Timer frameRateCounter;
         float avgFrameTime = 1;
@@ -23,7 +25,7 @@ namespace GameProject
 
         public Overworld() : base()
         {
-            Start();
+
         }
 
         public override void Start()
@@ -58,47 +60,22 @@ namespace GameProject
 
             AddChild(player);
 
-            //Sprite wallSprite = new Sprite("Textures/gun.png");
-            //WallTile wall = new WallTile(this, wallSprite);
-            //wall.rotation = 90;
-            //AddChild(wall);
-
-            //wall = new WallTile(this, new Sprite("Textures/gun.png"));
-            //wall.y = wallSprite.width;
-            //wall.rotation = 90;
-            //AddChild(wall);
-
-            //wall = new WallTile(this, new Sprite("Textures/gun.png"));
-            //wall.y = wallSprite.width*2;
-            //wall.rotation = 90;
-            //AddChild(wall);
-
-            //PickUp pickUp = new PickUp(this, "Textures/gun.png", "GUN");
-            //pickUp.x = 200;
-            //AddChild(pickUp);
-
-            //pickUp = new PickUp(this, "Textures/gun.png", "Key0");
-            //pickUp.x = 200;
-            //pickUp.y = 100;
-            //AddChild(pickUp);
-
-            //Door door = new Door(this, new Sprite("Textures/gun.png"), player, 0);
-            //door.x = 300;
-            //AddChild(door);
-
-
             bullets = new List<GameObject>();
 
             enemies = new List<GameObject>();
-            for (int i = 0; i < enemyCount; i++)
+            while (enemies.Count < enemyCount)
             {
-                Enemy enemy = new Enemy(this, player, ref enemies, UI, 0.3f);
-                enemies.Add(enemy);
-                AddChild(enemy);
                 Vector2 pos = new Vector2(Utils.Random(0, 2) == 0 ? game.RenderRange.left : game.RenderRange.right, Utils.Random(0, 2) == 0 ? game.RenderRange.top : game.RenderRange.bottom);
                 if (Utils.Random(0, 2) == 0) pos.x = Utils.Random(game.RenderRange.left, game.RenderRange.right);
                 else pos.y = Utils.Random(game.RenderRange.top, game.RenderRange.bottom);
-                enemy.screenPosition = pos;
+                if (!(pos.x < screenPosition.x + 128 || pos.y < screenPosition.y + 128 || pos.x > screenPosition.x + width - 128 || pos.y > screenPosition.y + height - 128))
+                {
+                    Enemy enemy = new Enemy(this, player, ref enemies, UI, Utils.Random(0, 0.2f));
+
+                    enemies.Add(enemy);
+                    AddChild(enemy);
+                    enemy.screenPosition = pos;
+                }
             }
 
             backgroundMusic = new Sound("Audio/game_loop.wav", true);
@@ -111,30 +88,46 @@ namespace GameProject
 
         public void Update(float a_dt)
         {
+            if (!m_active)
+                return;
+
+            difficulty = Mathf.Min(100f, difficulty + a_dt / 3f);
+
             position = -player.position + (new Vector2(Game.main.width, Game.main.height) * 0.5f);
             UI.position = player.position;
 
-            while (enemies.Count < enemyCount)
+            while (enemies.Count < Mathf.Floor(enemyCount + (difficulty / 3f)))
             {
-                Enemy enemy = new Enemy(this, player, ref enemies, UI, 0.3f);
-                enemies.Add(enemy);
-                AddChild(enemy);
-                Vector2 pos = new Vector2(Utils.Random(0, 2) == 0 ? game.RenderRange.left - 50 : game.RenderRange.right + 50, Utils.Random(0, 2) == 0 ? game.RenderRange.top - 50 : game.RenderRange.bottom + 50);
+                Vector2 pos = new Vector2(Utils.Random(0, 2) == 0 ? game.RenderRange.left : game.RenderRange.right, Utils.Random(0, 2) == 0 ? game.RenderRange.top : game.RenderRange.bottom);
                 if (Utils.Random(0, 2) == 0) pos.x = Utils.Random(game.RenderRange.left, game.RenderRange.right);
                 else pos.y = Utils.Random(game.RenderRange.top, game.RenderRange.bottom);
-                enemy.screenPosition = pos;
+                if (!(pos.x < screenPosition.x + 128 || pos.y < screenPosition.y + 128 || pos.x > screenPosition.x + width - 128 || pos.y > screenPosition.y + height - 128))
+                {
+                    Enemy enemy = new Enemy(this, player, ref enemies, UI, Utils.Random(0 + difficulty / 500f, 0.2f + difficulty / 200f));
+
+                    enemies.Add(enemy);
+                    AddChild(enemy);
+                    enemy.screenPosition = pos;
+                }
             }
         }
 
         protected override void OnDestroy()
         {
-            backgroundMusicChannel.Stop();
+            if (backgroundMusicChannel != null)
+                backgroundMusicChannel.Stop();
             base.OnDestroy();
         }
 
-        public override void Render(GLContext glContext)
+        public override void End()
         {
-            base.Render(glContext);
+            base.End();
+            backgroundMusicChannel.Stop();
+        }
+
+        protected override void RenderSelf(GLContext glContext)
+        {
+            base.RenderSelf(glContext);
 
             UI.Fill(0, 255, 05);
             UI.TextSize(30);
@@ -146,8 +139,8 @@ namespace GameProject
             string scoreText = (game as Program).score.ToString();
             UI.Text(scoreText, prefixDim.x + UI.TextWidth(scoreText) / 2 - 10, prefixDim.y / 2);
 
-            UI.Fill(0);
-            UI.Text(Mathf.Round(avgFrameRate).ToString(), 30, UI.height - 30);
+            //UI.Fill(0);
+            //UI.Text(Mathf.Round(avgFrameRate).ToString(), 30, UI.height - 30);
         }
     }
 }

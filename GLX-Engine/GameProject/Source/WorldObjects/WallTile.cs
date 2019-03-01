@@ -18,15 +18,7 @@ namespace GameProject
 
         protected override Collider createCollider()
         {
-            return null;// new BoxCollider(this, new System.Type[] { GetType() });
-        }
-
-        public void OnCollision(GameObject other, Vector2 a_mtv)
-        {
-            if (other is Bullet)
-            {
-                other.Destroy();
-            }
+            return new BoxCollider(this, new System.Type[] { GetType() });
         }
 
     }

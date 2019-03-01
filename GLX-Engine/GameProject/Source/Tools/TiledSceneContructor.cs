@@ -12,28 +12,17 @@ namespace GameProject
         static public void LoadObjects(Scene a_scene, string a_mapFile)
         {
             map = tileMapLoad(a_mapFile);
-            int[,] backgroundTiles = tilesLoad(1);
-            int[,] collisionTiles = tilesLoad(0);
+
+            a_scene.width = map.Width*map.TileWidth;
+            a_scene.height = map.Height*map.TileHeight;
+
+            int[,] backgroundTiles = tilesLoad(0);
+            int[,] collisionTiles = tilesLoad(1);
             List<TiledObject> tiledObjects = new List<TiledObject>(objectsLoad());
             string tileSheetFileName = map.TileSets[0].Source;
             TileSet tileSet = TiledParser.ReadTileSet(tileSheetFileName);
             List<string> objectTypes = new List<string>();
             tiledObjects.ForEach(tiledObject => { objectTypes.Add(tiledObject.Type); });
-
-            //load collision tiles
-            for (int i = 0; i < collisionTiles.GetLength(1); i++)
-            {
-                for (int j = 0; j < collisionTiles.GetLength(0); j++)
-                {
-                    if (collisionTiles[j, i] == 0) continue;
-                    AnimationSprite sprite = new AnimationSprite(tileSet.Image.FileName, tileSet.Columns, tileSet.Rows);
-                    sprite.SetFrame(collisionTiles[j, i]-1);
-                    WallTile tile = new WallTile(a_scene, sprite);
-                    tile.x = j * map.TileWidth;
-                    tile.y = i * map.TileHeight;
-                    a_scene.AddChild(tile);
-                }
-            }
 
             //load background tiles
             for (int i = 0; i < backgroundTiles.GetLength(1); i++)
@@ -44,6 +33,21 @@ namespace GameProject
                     AnimationSprite sprite = new AnimationSprite(tileSet.Image.FileName, tileSet.Columns, tileSet.Rows);
                     sprite.SetFrame(backgroundTiles[j, i]-1);
                     BackgroundTile tile = new BackgroundTile(a_scene, sprite);
+                    tile.x = j * map.TileWidth;
+                    tile.y = i * map.TileHeight;
+                    a_scene.AddChild(tile);
+                }
+            }
+
+            //load collision tiles
+            for (int i = 0; i < collisionTiles.GetLength(1); i++)
+            {
+                for (int j = 0; j < collisionTiles.GetLength(0); j++)
+                {
+                    if (collisionTiles[j, i] == 0) continue;
+                    AnimationSprite sprite = new AnimationSprite(tileSet.Image.FileName, tileSet.Columns, tileSet.Rows);
+                    sprite.SetFrame(collisionTiles[j, i]-1);
+                    WallTile tile = new WallTile(a_scene, sprite);
                     tile.x = j * map.TileWidth;
                     tile.y = i * map.TileHeight;
                     a_scene.AddChild(tile);

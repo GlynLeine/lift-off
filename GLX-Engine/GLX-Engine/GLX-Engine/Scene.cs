@@ -17,6 +17,7 @@ namespace GLXEngine
 
         public Vector2i m_dimensions;
         protected Rectangle _renderRange;
+        protected Rectangle m_collisionRange;
 
         public Scene m_masterScene;
         public GameObject m_player;
@@ -41,6 +42,11 @@ namespace GLXEngine
         public delegate void RenderDelegate(GLContext glContext);
         public virtual event RenderDelegate OnAfterRender;
 
+        public Scene(Rectangle a_collisionRange)
+        {
+            Setup(Game.main, a_collisionRange);
+        }
+
         public Scene()
         {
             Setup(Game.main);
@@ -51,7 +57,7 @@ namespace GLXEngine
             Setup(a_masterScene);
         }
 
-        public virtual void Setup(Scene a_masterScene)
+        public virtual void Setup(Scene a_masterScene, Rectangle a_collisionRange = null)
         {
             m_active = false;
             m_timeActive = 0f;
@@ -64,14 +70,18 @@ namespace GLXEngine
 
             if (a_masterScene != null)
             {
+                RenderRange = a_masterScene.RenderRange;
+                m_collisionRange = a_masterScene.m_collisionRange;
                 m_collisionManager = new CollisionManager(a_masterScene.m_collisionManager);
                 m_keyInputHandler = new KeyInputHandler(a_masterScene.m_keyInputHandler);
                 a_masterScene.AddSubScene(this);
-                RenderRange = a_masterScene.RenderRange;
             }
             else
             {
-                m_collisionManager = new CollisionManager();
+                if (a_collisionRange == null)
+                    throw new System.NullReferenceException("Made empty scene without a Game.");
+
+                m_collisionManager = new CollisionManager(a_collisionRange);
                 m_keyInputHandler = new KeyInputHandler();
             }
 
@@ -82,6 +92,16 @@ namespace GLXEngine
         public virtual void Start()
         {
             m_active = true;
+        }
+
+        public virtual void Continue()
+        {
+            m_active = true;
+        }
+
+        public virtual void End()
+        {
+            m_active = false;
         }
 
         public virtual void Restart()
@@ -114,7 +134,7 @@ namespace GLXEngine
 
                 m_keyInputHandler.Step();
 
-                m_subScenes.ForEach(scene => scene.Step());
+                m_subScenes.ForEach(scene => { if (scene.m_active) scene.Step(); });
 
                 m_subScenes.RemoveAll(scene => { return m_garbageScenes.Contains(scene); });
                 m_garbageScenes.Clear();
@@ -246,11 +266,13 @@ namespace GLXEngine
         public virtual int width
         {
             get { return m_dimensions.x; }
+            set { m_dimensions.x = value; }
         }
 
         public virtual int height
         {
             get { return m_dimensions.y; }
+            set { m_dimensions.y = value; }
         }
 
         public virtual List<GameObject> objectList

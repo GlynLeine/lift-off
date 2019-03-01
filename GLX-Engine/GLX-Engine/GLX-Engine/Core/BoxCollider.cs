@@ -5,8 +5,8 @@ namespace GLXEngine.Core
 {
     public class BoxCollider : Collider
     {
-        private BoundsObject m_owner;
-        private List<Type> _ignore;
+        public BoundsObject m_owner;
+        public List<Type> _ignore;
         //public EasyDraw m_canvas;
 
         //------------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ namespace GLXEngine.Core
         {
             if (other is BoxCollider)
             {
-                BoxCollider otherCollider = (other as BoxCollider);
+                BoxCollider otherCollider = other as BoxCollider;
 
                 if (m_owner.parent == null)
                     return false;
@@ -78,39 +78,25 @@ namespace GLXEngine.Core
                 float speedAsqr = velocityA.sqrMagnitude;
                 float speedBsqr = velocityB.sqrMagnitude;
 
-                //if (m_canvas != null)
-                //{
-                //    m_canvas.Quad(extendsA[0].x, extendsA[0].y, extendsA[1].x, extendsA[1].y, extendsA[2].x, extendsA[2].y, extendsA[3].x, extendsA[3].y);
-
-                //    m_canvas.Fill(255, 0, 0);
-                //    m_canvas.Ellipse(positionA.x, positionA.y, 10, 10);
-                //    m_canvas.Fill(0);
-                //}
-
-                if (CircleBroadPhase(hullA, positionA, velocityA, extendA, hullB, positionB, velocityB, extendB))
+                if (speedAsqr >= extendB * extendB && speedBsqr >= extendA * extendA)
                 {
-                    //if (speedAsqr >= extendB * extendB && speedBsqr >= extendA * extendA)
-                    //{
-                    //    if (LSINarrowPhase(hullA, positionA, velocityA, hullB, positionB))
-                    //        return true;
-                    //    if (LSINarrowPhase(hullB, positionB, velocityB, hullA, positionA))
-                    //        return true;
-                    //}
-                    //else if (speedAsqr >= extendB * extendB)
-                    //{
-                    //    if (LSINarrowPhase(hullA, positionA, velocityA, hullB, positionB))
-                    //        return true;
-                    //}
-                    //else
-                    //{
-                    //    if (LSINarrowPhase(hullB, positionB, velocityB, hullA, positionA))
-                    //        return true;
-                    //}
-
-                    if (SATNarrowPhase(extendsA, positionA, extendsB, positionB, ref other))
+                    if (LSINarrowPhase(hullA, positionA, velocityA, hullB, positionB))
+                        return true;
+                    if (LSINarrowPhase(hullB, positionB, velocityB, hullA, positionA))
                         return true;
                 }
-                return false;
+                else if (speedAsqr >= extendB * extendB)
+                {
+                    if (LSINarrowPhase(hullA, positionA, velocityA, hullB, positionB))
+                        return true;
+                }
+                else
+                {
+                    if (LSINarrowPhase(hullB, positionB, velocityB, hullA, positionA))
+                        return true;
+                }
+
+                return SATNarrowPhase(extendsA, positionA, extendsB, positionB, ref other);
             }
             else
             {
@@ -148,14 +134,14 @@ namespace GLXEngine.Core
         //------------------------------------------------------------------------------------------------------------------------
         private bool LSINarrowPhase(Vector2[] hullA, Vector2 positionA, Vector2 velocityA, Vector2[] hullB, Vector2 positionB)
         {
-            Vector2 closestPoint = null;
-            foreach (Vector2 point in hullA)
-                if (closestPoint == null)
-                    closestPoint = point;
-                else if (Vector2.Distance(point, positionB) < Vector2.Distance(closestPoint, positionB))
-                    closestPoint = point;
+            //Vector2 closestPoint = null;
+            //foreach (Vector2 point in hullA)
+            //    if (closestPoint == null)
+            //        closestPoint = point;
+            //    else if (Vector2.Distance(point, positionB) < Vector2.Distance(closestPoint, positionB))
+            //        closestPoint = point;
 
-            Vector2 lineEnd = closestPoint + velocityA;
+            //Vector2 lineEnd = closestPoint + velocityA;
 
 
 

@@ -17,12 +17,13 @@ namespace GameProject
     {
 
         Overworld overworld;
+        ScorePage scorePage;
 
         public int score = 0;
 
         public Program() : base(1280, 720, false)        // Create a window that's 800x600 and NOT fullscreen
         {
-            GLContext.clearColor = Color.FromArgb(255, 128, 128, 128);
+            GLContext.clearColor = Color.FromArgb(0, 0, 0);
 
             #region Set Input
             m_keyInputHandler.CreateEvent("MoveForward");
@@ -33,6 +34,22 @@ namespace GameProject
             m_keyInputHandler.CreateEvent("Dodge");
             m_keyInputHandler.CreateEvent("Reload");
             m_keyInputHandler.CreateEvent("SwitchWeapon");
+
+            m_keyInputHandler.CreateEvent("Confirm");
+            m_keyInputHandler.CreateEvent("Next");
+            m_keyInputHandler.CreateEvent("Continue");
+
+            m_keyInputHandler.MapEventToKeyAction("Confirm", Key.SPACE);
+            m_keyInputHandler.MapEventToKeyAction("Confirm", Key.DIGITAL2);
+
+            m_keyInputHandler.MapEventToKeyAxis("Next", Key.JOYSTICK_LEFT_Y, 1f);
+            m_keyInputHandler.MapEventToKeyAxis("Next", Key.W, 1f);
+            m_keyInputHandler.MapEventToKeyAxis("Next", Key.S, -1f);
+
+            m_keyInputHandler.MapEventToKeyAction("Next", Key.JOYSTICK_LEFT_Y);
+            m_keyInputHandler.MapEventToKeyAction("Next", Key.W);
+            m_keyInputHandler.MapEventToKeyAction("Next", Key.S);
+
 
             m_keyInputHandler.CreateEvent("PrintDiagnostics");
 
@@ -67,15 +84,27 @@ namespace GameProject
             #endregion
 
             overworld = new Overworld();
-            overworld.m_active = true;
+            overworld.m_active = false;
             AddChild(overworld);
+
+            scorePage = new ScorePage();
+            AddChild(scorePage);
+
             Console.WriteLine(GetDiagnostics());
         }
 
         public override void Restart()
         {
             score = 0;
+            scorePage.End();
             overworld.Restart();
+        }
+
+        public override void End()
+        {
+            scorePage.m_active = true;
+            overworld.End();
+            scorePage.Restart();
         }
 
         public void PrintDiagnostics(bool a_pressed)

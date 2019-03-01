@@ -247,7 +247,7 @@ namespace GLXEngine
                         InvokeInputActions(keyData.Key, false, controllerID);
 
                     foreach (Dictionary<Type, InputEventReference> events in m_events.Values)
-                        if (events.ContainsKey(typeof(InputButton))) ((InputButton)events[typeof(InputButton)].Object).m_delegate?.Invoke(keyData.Key, true, controllerID);
+                        if (events.ContainsKey(typeof(InputButton))) ((InputButton)events[typeof(InputButton)].Object).m_delegate?.Invoke(keyData.Key, false, controllerID);
                 }
             }
             #endregion
@@ -420,16 +420,18 @@ namespace GLXEngine
         {
             if (m_events.ContainsKey(a_name))
             {
+                InputButton buttonEvent;
                 if (m_events[a_name].ContainsKey(typeof(InputButton)))
-                {
-                    InputButton buttonEvent = (InputButton)m_events[a_name][typeof(InputButton)].Object;
-                    if (buttonEvent.m_delegate == null)
-                        buttonEvent.m_delegate = a_function;
-                    else
-                        buttonEvent.m_delegate += a_function;
-                }
+                    buttonEvent = (InputButton)m_events[a_name][typeof(InputButton)].Object;
                 else
-                    throw new Exception("Trying to bind function to an event that wasn't mapped to an button event.");
+                {
+                    buttonEvent = new InputButton();
+                    m_events[a_name].Add(typeof(InputButton), new InputEventReference(buttonEvent));
+                }
+                if (buttonEvent.m_delegate == null)
+                    buttonEvent.m_delegate = a_function;
+                else
+                    buttonEvent.m_delegate += a_function;
             }
             else
             {
